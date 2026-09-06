@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_ja","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ja","targetLanguage":"ja","targetLabel":"日本語","manifestLang":"日本語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 用のローカルプラグイン工場。小説サイトを学習してインストール可能なソースを生成し、作品情報・目次・章を翻訳します。データとキーは端末内に保持されます。 Output: 日本語.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_ja","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ja","targetLanguage":"ja","targetLabel":"日本語","manifestLang":"日本語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 用のローカルプラグイン工場。小説サイトを学習してインストール可能なソースを生成し、作品情報・目次・章を翻訳します。データとキーは端末内に保持されます。 Output: 日本語.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

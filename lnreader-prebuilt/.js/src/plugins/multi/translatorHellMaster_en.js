@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_en","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"en","targetLanguage":"en","targetLabel":"English","manifestLang":"English","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Local plugin factory for LNReader. Learns novel sites, creates installable sources, and translates metadata, catalogs, and chapters. Data and keys stay on the device. Output: English.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_en","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"en","targetLanguage":"en","targetLabel":"English","manifestLang":"English","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Local plugin factory for LNReader. Learns novel sites, creates installable sources, and translates metadata, catalogs, and chapters. Data and keys stay on the device. Output: English.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

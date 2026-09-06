@@ -27,7 +27,7 @@ CHILDREN_FILE = DATA_DIR / 'children.json'
 CREDENTIALS_FILE = DATA_DIR / 'credentials.json'
 MASTER_ICON_REL = 'src/multi/translatorhell/factory_ance_v072.png'
 MASTER_ICON = WEBROOT / ('public/static/' + MASTER_ICON_REL)
-VERSION = '0.8.6'
+VERSION = '0.8.7'
 MASTER_NAME = 'Factory - Ance'
 PROJECT_GITHUB = os.environ.get('TH_FACTORY_GITHUB', '').strip()
 LNREADER_GITHUB = 'https://github.com/lnreader/lnreader'
@@ -1078,7 +1078,8 @@ def master_description(target_key):
     }
     return texts.get(target_key, texts['en']) + f' Output: {label}.'
 
-def master_manifest_entry(target_key):
+def master_manifest_entry(target_key, download_base=None):
+    asset_base = str(download_base or BASE_URL).rstrip('/')
     lang = LANGUAGES[target_key]
     rel = f'.js/src/plugins/multi/translatorHellMaster_{target_key}.js'
     config = {
@@ -1104,8 +1105,8 @@ def master_manifest_entry(target_key):
     return {
         'id': config['id'], 'name': config['name'], 'site': config['site'],
         'lang': lang['manifest'], 'version': VERSION,
-        'url': f'{BASE_URL}/{rel}',
-        'iconUrl': f'{BASE_URL}/public/static/{MASTER_ICON_REL}',
+        'url': f'{asset_base}/{rel}',
+        'iconUrl': f'{asset_base}/public/static/{MASTER_ICON_REL}',
     }
 
 

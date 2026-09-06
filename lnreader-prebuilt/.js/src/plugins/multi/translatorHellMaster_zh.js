@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_zh","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"zh","targetLanguage":"zh-CN","targetLabel":"中文","manifestLang":"中文, 汉语, 漢語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 本地插件工厂。自动学习小说网站，生成可安装书源，并翻译作品信息、目录与章节。数据和密钥只保存在设备本地。 Output: 中文.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_zh","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"zh","targetLanguage":"zh-CN","targetLabel":"中文","manifestLang":"中文, 汉语, 漢語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 本地插件工厂。自动学习小说网站，生成可安装书源，并翻译作品信息、目录与章节。数据和密钥只保存在设备本地。 Output: 中文.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

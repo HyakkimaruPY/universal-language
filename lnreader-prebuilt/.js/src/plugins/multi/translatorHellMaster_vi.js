@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_vi","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"vi","targetLanguage":"vi","targetLabel":"Tiếng Việt","manifestLang":"Tiếng Việt","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Nhà máy plugin cục bộ cho LNReader. Tự học trang tiểu thuyết, tạo nguồn có thể cài đặt và dịch siêu dữ liệu, danh mục, chương. Dữ liệu và khóa luôn ở trên thiết bị. Output: Tiếng Việt.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_vi","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"vi","targetLanguage":"vi","targetLabel":"Tiếng Việt","manifestLang":"Tiếng Việt","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Nhà máy plugin cục bộ cho LNReader. Tự học trang tiểu thuyết, tạo nguồn có thể cài đặt và dịch siêu dữ liệu, danh mục, chương. Dữ liệu và khóa luôn ở trên thiết bị. Output: Tiếng Việt.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_th","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"th","targetLanguage":"th","targetLabel":"ไทย","manifestLang":"ไทย","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"โรงงานปลั๊กอินภายในเครื่องสำหรับ LNReader เรียนรู้เว็บนิยาย สร้างแหล่งที่ติดตั้งได้ และแปลข้อมูล แคตตาล็อก และตอนต่าง ๆ โดยข้อมูลและคีย์อยู่บนอุปกรณ์เท่านั้น Output: ไทย.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_th","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"th","targetLanguage":"th","targetLabel":"ไทย","manifestLang":"ไทย","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"โรงงานปลั๊กอินภายในเครื่องสำหรับ LNReader เรียนรู้เว็บนิยาย สร้างแหล่งที่ติดตั้งได้ และแปลข้อมูล แคตตาล็อก และตอนต่าง ๆ โดยข้อมูลและคีย์อยู่บนอุปกรณ์เท่านั้น Output: ไทย.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

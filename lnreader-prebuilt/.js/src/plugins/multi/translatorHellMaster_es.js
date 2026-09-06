@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_es","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"es","targetLanguage":"es","targetLabel":"Español","manifestLang":"Español","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fábrica local de plugins para LNReader. Aprende sitios de novelas, crea fuentes instalables y traduce metadatos, catálogos y capítulos. Los datos y claves permanecen en el dispositivo. Output: Español.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_es","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"es","targetLanguage":"es","targetLabel":"Español","manifestLang":"Español","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fábrica local de plugins para LNReader. Aprende sitios de novelas, crea fuentes instalables y traduce metadatos, catálogos y capítulos. Los datos y claves permanecen en el dispositivo. Output: Español.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

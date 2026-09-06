@@ -40,7 +40,8 @@ def main():
     out.mkdir(parents=True)
 
     m = load_factory()
-    m.BASE_URL = base
+    # Download origin is public; factory operations remain on the device.
+    m.BASE_URL = 'http://127.0.0.1:8765'
     m.PROJECT_GITHUB = m.github_repo_from_raw(base) or m.PROJECT_GITHUB
     m.WEBROOT = out
     m.TEMPLATE = ROOT / 'factory-templates' / 'runtime.template.js'
@@ -55,7 +56,7 @@ def main():
     icon_dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(m.MASTER_ICON, icon_dst)
 
-    manifest = [m.master_manifest_entry(k) for k in m.LANGUAGES]
+    manifest = [m.master_manifest_entry(k, download_base=base) for k in m.LANGUAGES]
     dist = out / '.dist'
     dist.mkdir(parents=True, exist_ok=True)
     (dist / 'plugins.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), 'utf-8')

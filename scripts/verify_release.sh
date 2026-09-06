@@ -6,6 +6,7 @@ cd "$ROOT"
 echo "[release] 1/5 self-test Python"
 python scripts/self_test.py
 python scripts/retranslation_self_test.py
+python scripts/publish_masters.py
 
 echo "[release] 2/5 runtime Node"
 node scripts/runtime_self_test.js

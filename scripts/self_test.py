@@ -67,7 +67,7 @@ with tempfile.TemporaryDirectory() as td:
     assert byok['groq'] == 'UPPER_G'
 
     assert all(x['name'] == 'Factory - Ance' for x in manifest)
-    assert all(x['version'] == '0.8.6' for x in manifest)
+    assert all(x['version'] == '0.8.7' for x in manifest)
     profile, created = M.register_profile({
         'host': 'm.zongheng.com',
         'origin': 'https://m.zongheng.com',

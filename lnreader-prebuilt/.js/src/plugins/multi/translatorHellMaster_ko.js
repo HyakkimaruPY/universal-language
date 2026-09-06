@@ -4,7 +4,7 @@ const fetch_1 = require("@libs/fetch");
 const cheerio_1 = require("cheerio");
 const filterInputs_1 = require("@libs/filterInputs");
 const storage_1 = require("@libs/storage");
-const CONFIG = {"id":"translatorhell_master_ko","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ko","targetLanguage":"ko","targetLabel":"한국어","manifestLang":"조선말, 한국어","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader용 로컬 플러그인 팩토리입니다. 소설 사이트를 학습해 설치 가능한 소스를 만들고 메타데이터, 목차, 챕터를 번역합니다. 데이터와 키는 기기에만 저장됩니다. Output: 한국어.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+const CONFIG = {"id":"translatorhell_master_ko","name":"Factory - Ance","site":"https://github.com/HyakkimaruPY/universal-language","version":"0.8.7","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ko","targetLanguage":"ko","targetLabel":"한국어","manifestLang":"조선말, 한국어","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader용 로컬 플러그인 팩토리입니다. 소설 사이트를 학습해 설치 가능한 소스를 만들고 메타데이터, 목차, 챕터를 번역합니다. 데이터와 키는 기기에만 저장됩니다. Output: 한국어.","repository":"https://github.com/HyakkimaruPY/universal-language","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
 const FACTORY_SUCCESS_LABELS = {
     id: 'Berhasil dibuat',
     en: 'Created successfully',

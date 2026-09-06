@@ -1,0 +1,146 @@
+{
+  "base_commit": "a29a5f8fae78b26e2c7dbb6caa7da83a9c9d873e",
+  "version": "0.8.7",
+  "files": [
+    {
+      "path": "README.md",
+      "before_sha256": "b0be6c09502f003677014a0a563aaac9f71ff9fe3250dd22ac6fbcc190f1b4bc",
+      "after_sha256": "a360ff53aca1ee44343c101422cc4d2f6a35f9345d3ebdf48a6d71b5ca661f51"
+    },
+    {
+      "path": "lnreader-prebuilt/.dist/plugins.json",
+      "before_sha256": "f3156fbb7f191df9fdb0abd1daa29002cb0ea9323b77d243223fb2b3e10946d1",
+      "after_sha256": "8ae23cd7b2e584257d7e80bea87da16cfca12a38d5decbea480a4b81990dc4c8"
+    },
+    {
+      "path": "lnreader-prebuilt/.dist/plugins.min.json",
+      "before_sha256": "24c98132f6fb5d947267116b86bd70c92a15cfb5f9b7f777dc10e8511997ed81",
+      "after_sha256": "a9e15434038396342b7bdf71fb59ed35c411b6363e4f80d65d3bb7ba29831984"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ar.js",
+      "before_sha256": "80746b3305024f2784f90872d817912f867b966174658352e4910ce38932938e",
+      "after_sha256": "aa2fa8ddfc9eacaf756165ea2c25efdbaf2e5c7bd834846bf49623abeab46651"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_en.js",
+      "before_sha256": "6d1f268ee73b04022735e0e8d96436e1178fc9f22259d88e58b224ae8ce96637",
+      "after_sha256": "c3b139ea3486abd755813cd3a5e8fb44c6ad1f105593d4b426d693398f66ebc8"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_es.js",
+      "before_sha256": "a96b5833af8ad1b3d4210d64365aeb9d732deb9e959c3eb288c5b076c950e03e",
+      "after_sha256": "527531fa621aa2e17d345781a960b5c74ec09bf2bd2ecf852c776aa12c92b923"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_fr.js",
+      "before_sha256": "6a2d10647b90ab833454a63748c0abc2856cb75755dd4d675ecb1f6c2725a079",
+      "after_sha256": "3a5f3e4fb1e7e885cf68ddf0b9dc530812e166924186280daf3e4e4119a271b1"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_id.js",
+      "before_sha256": "cf2c0b781e015b47a3c41ad4a2da3e98dc177a87e522bff8ecf2fda409d0e3f2",
+      "after_sha256": "6012e379a012862d17f8f166b05b919aaf75c80ffa22674f22785cb41ab43959"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ja.js",
+      "before_sha256": "6c1c1150749b13654f15406dcd6bff906a28d481c80559c5f3d23f4b374bdaef",
+      "after_sha256": "d9d296fa6c8fd95e2c586634cd5f282a0e55f3767ce1505527e7a6aa2a4b9b07"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ko.js",
+      "before_sha256": "ffa5fe014d0eeb610776a992daa2167af99e69efae546f89d668e78915d3dc1d",
+      "after_sha256": "76b19a14013047a15d8e142cacc43e15bb80e80eb4861d5802aff04df2ca26df"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pl.js",
+      "before_sha256": "824cde66aa34399b9b6799bef69b06a280d4c82803bf3d2b5ef350c843939a3b",
+      "after_sha256": "66b6ba18218d91d6451f7f15c7e505bf34d43dcb4ee29714a0c4ef88ee1072de"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pt.js",
+      "before_sha256": "3e3c77f70beb68296c0c813168e90e0965fe403fa2fb96acdbc8935ec2ecb05d",
+      "after_sha256": "6545a659ff414be1f8bc7cb73b483dd9272b42052cb2492e00679647715f6525"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ru.js",
+      "before_sha256": "cfd38e55ec9ef701ab4382940d12955570c38559ca5de68eb146d1c326bec42d",
+      "after_sha256": "dffb7d629c758436fffe0f3cd3d1bb6f28e5c91373397a74b481aeb0d983d4c5"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_th.js",
+      "before_sha256": "3f559e09481d4a72bdc734b5efa82e951ebf1fab7b3edabbcc61465cfda70930",
+      "after_sha256": "a0577576a4bf5b7b9cf66c77919a15b2245f1d12a5f6970cdf3e0ad23bd1c054"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_tr.js",
+      "before_sha256": "738ec6da8a9e84bdb5714deff057737014c8b96bdbaa752e2033a9314f52185b",
+      "after_sha256": "4bdd3e67018b25f3e909611cd6552567da631b090b43a47422174e997508057a"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_uk.js",
+      "before_sha256": "721d49610f1c6db47161458e4026e171c79e3141ea160f1bb07871f24993b4a1",
+      "after_sha256": "c5dfaaf88047730f05a98edd3d8f2880ddb07405ea41ea76ba1719d7ea004855"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_vi.js",
+      "before_sha256": "2e1376cb8df0f2f02a5fc059cd497feb01ea1a39a451ec84db0c3263220a07b8",
+      "after_sha256": "2bc3d401897f7a29fd4412d0c83b67225c74f8d5cf935b46e3d7816ba89ad2f8"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_zh.js",
+      "before_sha256": "411defc07e09c9d5ff112cd5bad824b2aaa51340922cb610acd72e62ad3f7933",
+      "after_sha256": "c8f2870e32edd679eebf7143aa9ab249bbe29d6e1016fd4d6f3a6eb1aa50147c"
+    },
+    {
+      "path": "package-lock.json",
+      "before_sha256": "7be3bc3dcf52afc33a4ab06bc9711c09e2509eeab1d437c154450904b4caaad5",
+      "after_sha256": "6d7ad4e5c912f603412cb48520cef560c8ba7da3928fc91fa3c89e8e0497a20b"
+    },
+    {
+      "path": "package.json",
+      "before_sha256": "90c40c737654e09a1605e2e2f56fe56deb4224e1f8db43b91ff255cde5693233",
+      "after_sha256": "eec6b8140b218d030b5bd748ee57a4d5ac59ef4b8434dfe9701c798509269322"
+    },
+    {
+      "path": "scripts/export_public_repo.py",
+      "before_sha256": "79be3a13b696fd8b258ff7f8c13ab6a1d28dd82dcb5a042c20b7fe126034aed7",
+      "after_sha256": "ef75e9f20b953faa28c1e4dbafecac7f2119bdbdf4188eb96ccb707a23c3a3ac"
+    },
+    {
+      "path": "scripts/factory_server.py",
+      "before_sha256": "c6542a6ddd708f1c9aa680348451d169441e00547a50360e3b38881a671f883c",
+      "after_sha256": "e6a1da474f979820fde20ed1f0605bcef402074092dff377226468f191071da6"
+    },
+    {
+      "path": "scripts/self_test.py",
+      "before_sha256": "1a35a450ae13686762fb0c6fc2c6bf105e89646ac5f6588336066367a539f06a",
+      "after_sha256": "4cd47f627bfa61df65b165166980dff9fa90ec2933678a97786e4a12c8d18fde"
+    },
+    {
+      "path": "scripts/verify_release.sh",
+      "before_sha256": "1106f952b241d0d86364c821203a5ca83fd03e6fb0d79c7c76f770c6e8ae53b9",
+      "after_sha256": "412bdc0717f6752611a4095a1d81ab2117a6e5f9e2388fc5e4591c314ae311de"
+    },
+    {
+      "path": "AUTONOMIA_LNREADER.md",
+      "before_sha256": null,
+      "after_sha256": "f3bbcb904bb110c1b7b492fe402ce2512b70aa44c16e7acb4085d88cbbffcc1e"
+    },
+    {
+      "path": "CHANGELOG_v0.8.7.md",
+      "before_sha256": null,
+      "after_sha256": "6eb28c999ea1a0a2f578c21dce25e5bbb780bc3e3029a2c1f76934b7e59ebe19"
+    },
+    {
+      "path": "TEST_REPORT_v0.8.7.txt",
+      "before_sha256": null,
+      "after_sha256": "e41f4cb43856041ef2f9b33b26d70377e01526dbdaf5611adb7074d8b0ac6055"
+    },
+    {
+      "path": "scripts/publish_masters.py",
+      "before_sha256": null,
+      "after_sha256": "fb2045c72adea808417f17740803e40647a96117a8c177eb9f9002a61917e652"
+    }
+  ]
+}

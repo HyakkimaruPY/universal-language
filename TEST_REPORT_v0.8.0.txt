@@ -1,0 +1,11 @@
+Factory - Ance v0.8.0 — Test Report
+
+PASS: Python self-test
+PASS: Node runtime self-test
+PASS: node --check nos 15 Masters
+PASS: distribution_guard.py
+PASS: perfil site+detalhe mantém seed/home e listingUrl
+PASS: novel hint por URL canônica recupera título/capa
+PASS: candidatos de logo são mesclados e tentados antes do fallback
+PASS: recuperação full-DOM só entra quando o parse compacto é claramente incompleto e a página está dentro do limite
+PASS: pacote público contém somente 15 Masters, zero filhos, zero perfis e zero chaves

@@ -1,0 +1,61 @@
+Factory - Ance v0.7.7 ESTÁVEL — relatório de validação
+Data: 2026-09-01
+Baseline: v0.7.6 ESTÁVEL FastPath + Anti-Travamento
+
+ESCOPO PRINCIPAL
+- adapters por arquitetura antes do fallback genérico;
+- WooCommerce + The7 + WPBakery/Visual Composer (regressão NOVA);
+- catálogo cross-language com tradução visual retryable;
+- capa lazy/CDN incluindo data-cfsrc;
+- detalhe WooCommerce: título, capa, resumo, autor, artista, status e gêneros;
+- volumes/partes sem deduplicação indevida por número;
+- busca reutiliza os cards/cover do adapter da arquitetura;
+- conteúdo de capítulo WPBakery tem seletor prioritário;
+- isolamento por novel, continuidade do catálogo e canonicalização preservados;
+- timeout/AbortController/anti-travamento preservados;
+- filhos continuam independentes do servidor 127.0.0.1 no caminho crítico.
+
+CORREÇÃO DE CACHE/TRADUÇÃO
+- sourcePageCache guarda os itens estruturais no idioma original;
+- nomes traduzidos nunca substituem a chave de origem no cache estrutural;
+- falha/timeout de tradução não é persistida como tradução válida;
+- reentrada tenta traduzir de novo sem refetch/reparse do catálogo;
+- metadataCache mantém valores brutos em propriedade não enumerável e pode
+  reaplicar tradução sem baixar novamente a página de produto;
+- SourceNovel serializado não expõe __thDisplayRaw.
+
+REGRESSÕES EXECUTADAS
+[OK] node --check factory-templates/runtime.template.js
+[OK] scripts/runtime_self_test.js
+[OK] scripts/self_test.py
+[OK] py_compile scripts Python
+[OK] node --check dos 15 Masters gerados
+[OK] manifests/factory-data JSON válidos
+[OK] manifesto contém 15 Masters, todos versionados 0.7.7
+[OK] caso teaser 001..024 + 164..185 rejeitado quando catálogo 001..185 existe
+[OK] URL AMP/www/tracking não duplica obra/capítulo
+[OK] catalogUrl é novel-scoped
+[OK] página final/repetida encerra paginação
+[OK] data-cfsrc vence placeholder de imagem
+[OK] En Proceso -> Ongoing; Completada -> Completed; 停更 -> On Hiatus
+[OK] falha ES->ZH não contamina display cache
+[OK] segunda renderização repete tradução usando página estrutural em cache
+[OK] metadata cache reaplica título/sinopse/capítulos visualmente
+[OK] adapter inclui .dt-css-grid div.wf-cell / h4.entry-title a
+[OK] volumes WPBakery incluem .dt-fancy-title / .wpb_tab a[href]
+[OK] busca reutiliza extractAdapterBrowseItems
+[OK] AJAX The7/WooCommerce só ativa com sinais fortes e produz NovelItem com capa
+[OK] capítulo prioriza .wpb_text_column.wpb_content_element > .wpb_wrapper
+[OK] timeout de tradução mantém catálogo navegável
+[OK] prefetch oculto de browse permanece desativado
+[OK] filho instalado abre com perfil embutido/local
+
+FACTORY-DATA — INALTERADO EM RELAÇÃO À v0.7.6
+profiles.json    ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356
+children.json    37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570
+credentials.json 5433d3301eaa13d2615c50ccc7b649349d31a845c58dae6bb67644491152e015
+
+NOTA DE BUILD
+factory-templates/runtime.template.js é a fonte executável autoritativa.
+runtime.template.ts é apenas espelho histórico/referência e está marcado para
+não ser usado como build source.

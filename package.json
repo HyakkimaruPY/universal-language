@@ -1,0 +1,12 @@
+{
+  "name": "factory-ance-regression-tests",
+  "version": "0.8.6",
+  "private": true,
+  "description": "Development-only DOM tests; not used by the Factory server or Android plugins",
+  "scripts": {
+    "test": "node scripts/architecture_self_test.js"
+  },
+  "devDependencies": {
+    "cheerio": "1.0.0"
+  }
+}

@@ -1,0 +1,59 @@
+TEST REPORT v0.8.4 — 2026-09-05
+
+PASS: Python offline; suíte Node legada; 22 grupos com DOM real; sintaxe dos
+15 Masters; Distribution Guard. O teste legado de janela visual foi atualizado
+para refletir o limite intencional de 6,5 s (tolerância até 7,2 s).
+
+Novos casos: 403 -> sem cache -> nova tentativa; vazio recuperável;
+teaser 47 -> AMP 2420; OG e cards entre hosts; POST fictionposts;
+lote inválido -> títulos ES individuais; espelho exige nomes coincidentes.
+
+Fixtures sintéticas, HTTP/storage simulados. Consultas ao vivo não equivalem
+a sucesso no Android. APK não compilado; cookies e CAPTCHA reais não testados.
+
+Log:
+
+[release] 1/5 self-test Python
+[factory] Provedores locais: Pollinations, Z.AI, BigModel, Groq
+[perf][server] icon-resolve 2.2ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] register-profile 44.4ms host=m.zongheng.com profile=0.2ms child=0.2ms rebuild=44.0ms
+[perf][server] register-profile 0.5ms host=m.zongheng.com profile=0.4ms child=0.0ms rebuild=0.0ms
+[perf][server] icon-resolve 1.0ms host=icons.example candidates=15 saved=True
+[perf][server] icon-resolve 1.2ms host=t.mobile-icons.example candidates=16 saved=True
+[perf][server] icon-resolve 1.7ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] icon-resolve 1.5ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] icon-resolve 1.0ms host=novelasligeras.net candidates=13 saved=False
+[perf][server] register-profile 22.3ms host=novelasligeras.net profile=0.2ms child=0.2ms rebuild=21.9ms
+[factory] cliente encerrou a conexão antes da resposta: POST /api/factory/register
+OK — Factory 0.8.4: Shuqi, isolamento por obra, ícones e distribuição validados.
+[release] 2/5 runtime Node
+OK — regressões herdadas até v0.8.2: Shuqi completo, isolamento por obra, ícones, continuidade e adapters validados.
+[release] 3/5 arquiteturas com DOM real
+PASS Madara new POST + explicit page 2 + ascending chapters
+PASS Madara old endpoint uses current work ID, no copied source
+PASS ReadNovelFull archive + JSON html envelope
+PASS Unrecognized DOM does not probe AJAX endpoints
+PASS AJAX failed/repeated page never becomes a complete catalog
+PASS HTML catalog failure on announced page is explicit
+PASS Cloudflare CDN/embedded Turnstile does not block valid content
+PASS Cloudflare blocked document remains typed and no second transport
+PASS Protected creation produces installable pending child and allows retry
+PASS Registration failure is not advertised as creation success
+PASS Catalog expires in memory, bounded to four works, identity checked
+PASS parseNovel/parsePage contract and no invented chapter on empty catalog
+PASS Native remote pagination renders first 100 of 205, fetches page 3 on demand
+PASS Legacy encoding reads the same response, one HTTP request
+PASS AJAX pager showing only last page expands intermediate pages
+PASS HTTP 403 is not cached as empty; same child retries after WebView
+PASS Empty first page can recover without reinstalling
+PASS Quanben-style teaser recovers actual AMP with 2420 chapters
+PASS Novel OG vocabulary and static list cards work across hosts
+PASS Fictionposts AJAX uses real work ID and extracts TOC
+PASS Malformed translation batch falls back to individual ES titles
+PASS Mirror compatibility requires matching names and preserves hrefs
+OK — 22 architecture regression groups (real DOM, mocked network).
+[release] 4/5 sintaxe dos 15 Masters
+[release] 5/5 distribution guard
+[distribution-guard] OK: <projeto>
+[distribution-guard] 15 Masters apenas; nenhum filho/plugin oficial/perfil/chave distribuído.
+[release] OK — árvore segura para empacotar/publicar.

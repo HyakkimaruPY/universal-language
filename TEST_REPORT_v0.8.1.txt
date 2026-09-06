@@ -1,0 +1,35 @@
+Factory - Ance v0.8.1 — Test Report
+
+PASS: node --check runtime.template.js
+PASS: node --check 15 Masters gerados
+PASS: scripts/runtime_self_test.js
+  - transporte stability-first
+  - gap extremo 34 -> 4893 detectado
+  - fallback contínuo remove bloco 4893+
+  - paginação em option/value e data-url
+  - inferência list_N.html
+  - ranking /chapterlist antes de rotas inventadas
+  - URL de leitura /chapter/<book>/<chapter> rejeitada como catálogo
+  - família Yuewen/XS8 detectada
+  - filtro URL + paginação preserva `/c/xuanhuan_2.html`
+PASS: scripts/self_test.py
+  - manifest v0.8.1
+  - icon resolver concorrente
+  - BrokenPipe tratado como cancelamento
+  - geração de filho e BYOK local
+PASS: scripts/verify_release.sh
+  - 15 Masters
+  - 0 filhos distribuídos
+  - 0 perfis/chaves distribuídos
+  - nenhum plugin oficial/referência dentro do pacote
+
+Diagnóstico do log fornecido pelo usuário:
+- Quanben browse: o log mostrava page=2 refazendo `https://quanben.io/c/xuanhuan.html`; por isso `dedupe-cache` descartava os 13 itens. A ordem filtro→paginação foi corrigida para gerar `_2.html`, `_3.html` etc.
+- Quanben: parseNovel ~4.46 s; tradução inicial ~2.21 s era a maior etapa normal. A lista retornou 47 capítulos/2 páginas e precisava validação de continuidade antes de ser publicada.
+- XS8: parseNovel chegou a ~20–23.7 s porque uma rota válida /chapterlist/<id> (3–4.8 s) era aguardada junto com rotas inúteis; /book/<id>/catalog.html sozinho consumiu ~14 s e retornou 0 bytes.
+- XS8 browse: adapter genérico gastou ~3.5 s na etapa final sobre 51 cards. O adapter Yuewen evita essa varredura genérica ampla.
+- /register de XS8 levou ~8.04 s; a resolução serial de candidatos de ícone podia somar vários timeouts. Agora candidatos declarados são resolvidos em paralelo sob um orçamento único.
+
+Expectativa técnica (não é benchmark físico do aparelho):
+- Uma obra Yuewen deixa de esperar /catalog.html e rotas de reader inválidas; o caminho crítico usa /chapterlist/<id>.
+- Um teaser Quanben nunca deve aparecer como 34 -> 4893; tenta alternativa full/AMP e, se não houver recuperação, publica apenas a sequência inicial contínua.

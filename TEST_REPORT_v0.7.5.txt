@@ -1,0 +1,38 @@
+Factory - Ance v0.7.5 ESTÁVEL — relatório de validação
+Base imediata: Factory_Ance_LNReader_v0.7.4_ESTAVEL_Catalogo_Otimizado.zip
+
+ESCOPO
+- preservação das otimizações de desempenho da v0.7.4;
+- correção genérica de catálogo teaser/intervalos ausentes;
+- deduplicação de obras e capítulos equivalentes;
+- estabilidade do browse em extensões entre idiomas, incluindo ES -> ZH;
+- descoberta genérica para CMS/WordPress/WooCommerce multilíngue.
+
+REGRESSÕES EXECUTADAS
+- teaser sintético 001..024 + 164..185 é detectado como incompleto;
+- catálogo integral sintético 001..185 é preferido e mantém o capítulo 025;
+- prefixos "025 título" e "164) título" são reconhecidos numericamente;
+- paginação list_2.html/list_3.html é reconhecida sem classificar /25.html de capítulo como página;
+- URL de capítulo AMP + tracking e URL normal resultam em um único capítulo;
+- URL de obra www/AMP/tracking e URL normal resultam em uma única obra;
+- rota aprendida da obra A não é usada ao abrir a obra B;
+- tradução visual simulada com falha devolve o título original e não bloqueia sourcePage;
+- "Lista de Novelas" e caminho WordPress em espanhol são descobertos;
+- child sintético novelasligeras.net com saída zh-CN é gerado e passa em node --check.
+
+VALIDAÇÃO ESTÁTICA
+- python scripts/self_test.py: OK
+- node scripts/runtime_self_test.js: OK
+- python -m py_compile: OK
+- node --check no runtime.template.js: OK
+- node --check nos 15 Masters gerados: OK
+- JSON de manifests e factory-data: OK
+
+INTEGRIDADE DE FACTORY-DATA
+- children.json: 37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570
+- credentials.json: 5433d3301eaa13d2615c50ccc7b649349d31a845c58dae6bb67644491152e015
+- profiles.json: ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356
+Esses hashes permanecem iguais aos da baseline recebida nesta linha estável.
+
+OBSERVAÇÃO
+A validação acima é unitária/sintética/de integração de geração. Não é uma alegação de teste físico no aparelho do usuário. Os casos reportados foram convertidos em regressões genéricas para evitar correções específicas por domínio.

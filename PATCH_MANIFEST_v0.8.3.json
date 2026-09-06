@@ -1,0 +1,167 @@
+{
+  "base": "0.8.2",
+  "version": "0.8.3",
+  "note": "SHA-256 dos arquivos alterados; o diff e este manifesto não incluem a si próprios. Dados de usuário preservados.",
+  "files": [
+    {
+      "path": ".github/workflows/distribution-guard.yml",
+      "before_sha256": "213a2b5246fad6dc1087bda90e7891c1beebe110d92e8c2e34bf5208ef10cd7b",
+      "after_sha256": "ffeb7036c218ff4bb696805f4a414d83fba061c6e6f75f6705728be4471f5163"
+    },
+    {
+      "path": ".gitignore",
+      "before_sha256": "04bab6b25ed9802fd8e56053213849316ba8a2fb7fd5121932f0dd5f5df59207",
+      "after_sha256": "6e2e5ed82422501e4bc9f318e87efeeb67429a9f63e0497d92966bdcd145b553"
+    },
+    {
+      "path": "ARCHITECTURE.md",
+      "before_sha256": "846ca935abd5d00f300a654b8b479dc65f2fc1ecb0f5082e36c185c5f422f647",
+      "after_sha256": "3073e0903204d9cde23aeb21b2276ef7466306790c25fb31d478cc9da4f9d212"
+    },
+    {
+      "path": "AUDITORIA_LNREADER_v0.8.3.md",
+      "before_sha256": null,
+      "after_sha256": "dfc017fb8c03da3f82b616e4a7a19dd0b960cb51b777db7760578e45ce15ea17"
+    },
+    {
+      "path": "CHANGELOG_v0.8.3.md",
+      "before_sha256": null,
+      "after_sha256": "39f1f03221b722b6a3427270eae8573fcbf7b50634aec5e3a27db63fad02649a"
+    },
+    {
+      "path": "README.md",
+      "before_sha256": "8796455afed98433d80ccf3a7cb727121e117ed2900645e12bf2088e671c436f",
+      "after_sha256": "11691d87ee91e7f72fc7c9d3536833a87226e1e81bb264e05b300891aa17309c"
+    },
+    {
+      "path": "TEST_REPORT_v0.8.3.txt",
+      "before_sha256": null,
+      "after_sha256": "6614be2b1db64ba44adcd7e79746864b1ce9c8bd6d924a99375f20b2ff1b6a8e"
+    },
+    {
+      "path": "factory-templates/runtime.template.js",
+      "before_sha256": "e2b34cb57bd36664f3db7e35432b029bc872645deeb664a59d53dd5410f24b2e",
+      "after_sha256": "2be628aa36f05c6a252c95794dd5003050cea2c32c84e87d88b6832a45f40d2a"
+    },
+    {
+      "path": "lnreader-prebuilt/.dist/plugins.json",
+      "before_sha256": "2ca402ef05623bba5df59d8de4eb4c87f9ed76aa757baf101276d9443aabc6ee",
+      "after_sha256": "2b76dae725eebf9a874bbcbedcf8ede8bb565eaf1a1d4ac559e71efffb1f2c52"
+    },
+    {
+      "path": "lnreader-prebuilt/.dist/plugins.min.json",
+      "before_sha256": "7218d8ecd96ba36cc85a150b59bfe8c07439a0678abea16b9cd3a2e254536b14",
+      "after_sha256": "fcd4cedb1ff34b589cf5b9e0fe28c0c5d18ba699f603c7c5238bc5d065398df0"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ar.js",
+      "before_sha256": "f1005d4d18d6fb9a031f626f47bff48c179ff57988cf19daba9af3fc1f7cdb31",
+      "after_sha256": "e57c265b710cd73a3db4cecd177d88beeaf714937e7b797a59981b5c4e2ce27e"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_en.js",
+      "before_sha256": "62d218dc30e101121417fe4fdc5fa23a52795ab5883e895cf17b778f90085404",
+      "after_sha256": "3f216a4930bc6b0373fa798857368058ca74f075a24a2bdf1fddea1414288de0"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_es.js",
+      "before_sha256": "150258c8395cf2a6676fea6b02836de44bb7b366ddfc57a54e5e0af06c26452f",
+      "after_sha256": "9de29054153fa4667cdf00134dbda3f53638cbd7ebf9b040bc30450c50950e7c"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_fr.js",
+      "before_sha256": "1fea5c3679ce91505b746ada1c53ea41fc551a33bec2c05ad2cdd8b222892366",
+      "after_sha256": "e40343097e887b4d07c28ab9d700b0741dc32aaaa9e2679b2b37ba2126eecf62"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_id.js",
+      "before_sha256": "26b455a4dd21671812fd2f398a61256c2df0066cd1cf18edca739ebad255afad",
+      "after_sha256": "24fa7b8c97712bf50f5c31f9600c2de315e7e189a89b7e1f10445db1c29eb31a"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ja.js",
+      "before_sha256": "d93d9c14f9b2347441a06d20e124e185197e14ec82e6c071072cd41e9745a586",
+      "after_sha256": "d343cfea506d44ef2e6a5881e468ea62eb5cc2eaed4e09c6cedaf1be71445403"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ko.js",
+      "before_sha256": "7605164f8651cbaaebe1d5a869f182cc392cb7cb60cc7a47dd1cb0bccdfc731b",
+      "after_sha256": "98cc549a8b5b145ec196b9571e053126b3fcba627f5a8151d866ba82975a7fe1"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pl.js",
+      "before_sha256": "a8e8f184c7a87f27680992a53dc70bf4a3d4dcc18a183274c7b7649b019b1c70",
+      "after_sha256": "94775e244dcfaff76614ffe98d18f52a2075330eea1629d277eaab564a5edb1c"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pt.js",
+      "before_sha256": "23a6be98243ba245b656e89951976925337e8bfda3a5ee730db6de0ea5c9c8c3",
+      "after_sha256": "ef9c67648c5357faf61571d08b8ff1608de16c7b56a88fc2713a7d6736881ae9"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ru.js",
+      "before_sha256": "e2f3554805c14e469d576946b8b7756884396749a0e3fd74d722809e1a6247a2",
+      "after_sha256": "162dbd1354cd5744a5330d0d8c590507ea6ab93a30bb78f62bbeb55c0882b378"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_th.js",
+      "before_sha256": "b2aa58ca2b7636bba45321ccf110bc997e1ec412555167f129c8e47babe3a637",
+      "after_sha256": "306b39f6ef04c08ce22a85cde946101cf4eec34f9fa377480598f8e06773717c"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_tr.js",
+      "before_sha256": "54dd81597b911e02bc39430eec2c0fbe4e9ccbc10bc82398aa3753bf507db1b1",
+      "after_sha256": "bdc5d75dda1bcb3fb5997c201347f357eb4a1da7aacc9da163a8853770551ca5"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_uk.js",
+      "before_sha256": "d1dcfa7a0ca338ff5314b0c395dd9668c6f79b53014611da4ef34c2938a27247",
+      "after_sha256": "45763e6ecb2b5761bad789c756df81c33c45cbb8dc22efdeaf0d9dd6032f1126"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_vi.js",
+      "before_sha256": "f4464a29a6c967c880c9971767c613e341c279e818340a3a9ddef9780b0c8945",
+      "after_sha256": "54e7e8045d7ac3972d2ac6826cd01e470bcad698a489b93e2c338a4a754a0f70"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_zh.js",
+      "before_sha256": "102c08f6744b5b4a3f52492daeb16e815013a8c3acb5aaaddaa14577e4e4af84",
+      "after_sha256": "5b618d5c336acce4f6761a8d0359b74006deecd4869595858ad0c92ba5e11800"
+    },
+    {
+      "path": "package-lock.json",
+      "before_sha256": null,
+      "after_sha256": "c3a8a8342c93615b33d3401095d6595a538a335110e6c2641d16f6b28a0dfa89"
+    },
+    {
+      "path": "package.json",
+      "before_sha256": null,
+      "after_sha256": "aea04566783c0691e9f5dbd4641e8a0f49214dd22807a7e9f7c1ad5c98d0504b"
+    },
+    {
+      "path": "scripts/architecture_self_test.js",
+      "before_sha256": null,
+      "after_sha256": "adbccf4c803c2b1da9104bef3ec63d9ab88db81293681fce66acc2d6424011cb"
+    },
+    {
+      "path": "scripts/factory_server.py",
+      "before_sha256": "b65facd6b2b5f13ff223a0607880b50ea725846ca66f052f7eb08d0e3d14e0c7",
+      "after_sha256": "0f7fa8cf21d0145d4ef56d0ca1c221784ede9d0a1e8eb264a5419252ce5467c8"
+    },
+    {
+      "path": "scripts/runtime_self_test.js",
+      "before_sha256": "169b993984c113ad2281bb9586da559aabb743999a5ee6e97c052f12d6f510f3",
+      "after_sha256": "66b362ef1515a2fb5526927febb6158068f261d7c5f5014ff7ec110ef1bd1aba"
+    },
+    {
+      "path": "scripts/self_test.py",
+      "before_sha256": "175741c50c15b636329a3e8cff821025b0cf69bf4db0e1d33a7bdba349b3fffa",
+      "after_sha256": "c788dcf0e28c84f9407cbf86dc6abae3a2f3582f410efb291ee3860f3e0dc86d"
+    },
+    {
+      "path": "scripts/verify_release.sh",
+      "before_sha256": "dac8bfd1629e98e819c18c45f46c7ae4a08ab87f060c100fd8da6258a76dbcbc",
+      "after_sha256": "6bc01483d5eb8ca8445ba6ccceaee9c740572f8146334f1c855c1a06add5ae8a"
+    }
+  ]
+}

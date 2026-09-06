@@ -1,0 +1,29 @@
+name: Factory distribution guard
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify-release-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install test-only dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify Factory release tree
+        run: bash scripts/verify_release.sh

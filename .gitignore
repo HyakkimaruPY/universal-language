@@ -1,0 +1,9 @@
+factory-data/credentials.json
+factory-data/profiles.json
+factory-data/children.json
+lnreader-prebuilt/.js/src/plugins/generated/
+lnreader-prebuilt/public/static/src/generated/
+__pycache__/
+*.pyc
+
+node_modules/

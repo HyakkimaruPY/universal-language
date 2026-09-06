@@ -1,0 +1,38 @@
+Factory - Ance v0.7.9 — TEST REPORT
+========================================
+
+Objetivo desta build
+--------------------
+Impedir automaticamente que o corpus oficial de plugins usado como referência,
+filhos gerados localmente, perfis aprendidos ou chaves BYOK sejam incorporados a
+uma release da Factory.
+
+Validações executadas
+---------------------
+[OK] scripts/self_test.py
+[OK] scripts/runtime_self_test.js
+[OK] node --check nos 15 translatorHellMaster_*.js
+[OK] scripts/distribution_guard.py --package <root>
+[OK] export_public_repo.py + distribution_guard --webroot
+[OK] teste negativo: plugin de referência NOVA.js inserido em árvore temporária -> release recusada
+[OK] teste negativo: child pré-gerado em factory-data/children.json -> release recusada
+[OK] manifest plugins.json: exatamente 15 IDs translatorhell_master_*
+[OK] manifest plugins.min.json: exatamente 15 IDs translatorhell_master_*
+[OK] nenhum arquivo em .js/src/plugins/generated/
+[OK] nenhum arquivo em public/static/src/generated/
+[OK] factory-data/children.json = []
+[OK] factory-data/profiles.json = {}
+[OK] factory-data/credentials.json sem keys/models/order privados
+
+Integrações
+-----------
+Termux: bash scripts/verify_release.sh
+GitHub: .github/workflows/distribution-guard.yml
+Export: scripts/export_public_repo.py executa o guard no webroot final.
+
+Política
+--------
+Plugins oficiais/referências podem ser citados em documentação e estudados para
+extrair padrões arquiteturais. O código de uma extensão pronta não pode ser
+incluído na distribuição. A lógica útil deve entrar como adapter/módulo genérico
+próprio da Factory.

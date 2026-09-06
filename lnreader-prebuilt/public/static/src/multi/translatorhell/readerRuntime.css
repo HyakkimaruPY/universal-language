@@ -1,0 +1,4 @@
+/* Translator Hell reader companion. Deliberately does not override LNReader typography. */
+[data-th-noise="1"], .th-noise { display: none !important; }
+.th-retranslating { opacity: .58 !important; transition: opacity .12s ease; }
+.th-corrected { text-decoration-skip-ink: auto; }

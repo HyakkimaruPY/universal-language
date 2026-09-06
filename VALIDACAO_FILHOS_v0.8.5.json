@@ -1,0 +1,32 @@
+[
+  {
+    "file": "anquanben_ii.js",
+    "sha256": "31948616628153dbde7a2b2326276463883d6d971b69fce77b6f6526f3b5efe4",
+    "runtime_matches_084": true
+  },
+  {
+    "file": "anquanben_io.js",
+    "sha256": "05947705c2e3227a2c46c6369261d4ca1541a7a01208436053256d8ca7bb03d8",
+    "runtime_matches_084": true
+  },
+  {
+    "file": "h5_17k_com.js",
+    "sha256": "c84fff78f581d240f50a90cb5880ebbe6fc6afa274ef093ef62fe6e4f9cc9511",
+    "runtime_matches_084": true
+  },
+  {
+    "file": "novelaligera_com.js",
+    "sha256": "60f007ed7f42c0044a604033b717b4768098631d38662282fa922ab02747a04b",
+    "runtime_matches_084": true
+  },
+  {
+    "file": "novellive_app.js",
+    "sha256": "214bea3010f01eb138e3e8d2f6f1b015210269f90bdd14d3fbd2ae458e63e429",
+    "runtime_matches_084": true
+  },
+  {
+    "file": "quanben_io.js",
+    "sha256": "410f452eb59ec62e96277bc2ec1ce2c293160342c57a4000549ba41de41dbc1a",
+    "runtime_matches_084": true
+  }
+]

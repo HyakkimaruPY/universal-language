@@ -1,0 +1,67 @@
+Factory - Ance v0.7.6 ESTÁVEL — relatório de validação
+Base imediata: Factory_Ance_LNReader_v0.7.5_ESTAVEL_Catalogo_Continuidade_Multilingue.zip
+
+OBJETIVO
+- impedir o travamento observado ao abrir extensões/catálogos, inclusive ES -> ZH;
+- acelerar entrada em extensões já aprendidas;
+- tratar WordPress/WooCommerce/LightNovelWP/Madara por família antes do fallback genérico;
+- manter as correções de continuidade, deduplicação e isolamento por obra da v0.7.5.
+
+PESQUISA APLICADA
+- LNReader multisource/Quickstart: família/CMS -> template específico -> fallback;
+- LightNovelWP oficial: rota direta de séries, paginação ?page=N, parsing reduzido/streaming e falha rápida de captcha;
+- PR LNORI #2446: TOC recortado + concorrência limitada; 58,3 MB -> 0,4 MB entregues ao parser no benchmark publicado;
+- PR Lib-Read #2478: paginação de capítulos controlada para evitar rate-limit;
+- MZ Novels: página ativa é validada porque o site pode repetir a última página;
+- helper fetch do LNReader: fetchApi repassa init para fetch, permitindo AbortSignal quando disponível.
+
+REGRESSÕES EXECUTADAS
+- WooCommerce é detectado e recebe paginação WordPress /page/N/;
+- LightNovelWP recebe paginação ?page=N e não é confundido com archive WordPress genérico;
+- rota aprendida /page/3/ é normalizada para a raiz do catálogo;
+- novelasligeras.net sintético: hot path aprendido faz exatamente 1 request de catálogo;
+- cold start sintético: homepage -> link real do catálogo em exatamente 2 requests;
+- timeout abortável sinaliza AbortController quando disponível;
+- resposta de rede atrasada não entra em compactação/Cheerio após deadline;
+- filho não consulta servidor local da Factory para getCurrentProfile/loadTranslationConfig;
+- tradução visual de título permanentemente pendente devolve catálogo original dentro do orçamento;
+- browse não agenda prefetch escondido de página 2;
+- teaser 001..024 + 164..185 continua sendo detectado como incompleto;
+- catálogo integral 001..185 continua sendo preferido;
+- obra A não fornece catalogUrl/capítulos à obra B;
+- single-flight por obra preservado;
+- Cloudflare/Turnstile preservados;
+- paginação parseNovel/parsePage preservada.
+
+VALIDAÇÃO ESPECÍFICA DE GERAÇÃO
+- filho sintético novelasligeras.net -> zh-CN gerado com:
+  browseAdapter=woocommerce
+  paginationMode=wordpress-path
+  listingUrl=/index.php/lista-de-novela-ligera-novela-web/
+- node --check no filho: OK
+
+BENCHMARK SINTÉTICO DO BROWSE
+- HTML bruto: 8.006.579 bytes
+- HTML entregue após compactação: 6.545 bytes
+- restante: 0,082% do original (redução aproximada de 99,918%)
+- 42 cards WooCommerce preservados no cenário de teste
+- tempo local da compactação na execução registrada: 7 ms
+Observação: este benchmark mede apenas a função de compactação em ambiente local; não representa latência de rede ou desempenho físico do aparelho.
+
+VALIDAÇÃO ESTÁTICA/INTEGRAÇÃO
+- node --check factory-templates/runtime.template.js: OK
+- python -m py_compile scripts/factory_server.py scripts/self_test.py: OK
+- node --check nos 15 Masters gerados: OK
+- node scripts/runtime_self_test.js: OK
+- python scripts/self_test.py: OK
+- JSON de manifests/factory-data: OK
+- manifest final: 15 Masters v0.7.6
+
+INTEGRIDADE DE FACTORY-DATA
+- children.json: 37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570
+- profiles.json: ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356
+- credentials.json: 5433d3301eaa13d2615c50ccc7b649349d31a845c58dae6bb67644491152e015
+Os três hashes permanecem idênticos aos da baseline desta linha estável.
+
+LIMITAÇÃO DECLARADA
+Não foi realizado teste físico no aparelho do usuário. O site novelasligeras.net foi verificado estruturalmente pela Web e o caso foi convertido em regressões unitárias/de integração genéricas; o comportamento final do Android/LNReader deve ser confirmado no dispositivo.

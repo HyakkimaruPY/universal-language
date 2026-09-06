@@ -1,0 +1,36 @@
+Factory - Ance v0.7.8 — relatório de regressão
+
+Cobertura adicionada:
+- preferredSelector de capítulos é usado antes do fallback global.
+- `®...` não é aceito como capítulo em URL numérica.
+- capítulo CJK explícito continua válido.
+- Qidian `/book/<id>.html` gera capas distintas por bookId quando o lazy DOM repete uma imagem.
+- três itens Qidian com a mesma capa incorreta são reparados para três capas distintas.
+- família estática `/n/<slug>/` consulta diretamente `/n/<slug>/list.html` e retorna catálogo.
+- parseNovel não agenda `prefetchChapter(firstChapters...)` nem warm de títulos após render.
+- parseChapter não agenda prefetch escondido do próximo capítulo.
+- profiler existe em browsePage/parseNovel/sourcePage/chapterCatalog/parseChapter.
+- BrokenPipe simulado em json_response retorna False sem lançar exceção.
+
+Regressões antigas mantidas:
+- 15 Masters.
+- isolamento de obras A/B no mesmo domínio.
+- single-flight por obra.
+- catálogo 001..024 + 164..185 recupera sequência integral.
+- dedupe www/AMP/tracking.
+- paginação parsePage de 24 itens.
+- adapters WooCommerce/The7/WPBakery, Madara, LightNovelWP, Fictioneer.
+- data-cfsrc/lazy cover.
+- tradução visual retryable sem contaminar cache estrutural.
+- AJAX WooCommerce The7 apenas com sinal forte.
+- catálogo sem prefetch oculto de página 2.
+- Cloudflare/WebView e storage preservados.
+
+Validações de empacotamento:
+- Python self-test: PASS
+- Node runtime_self_test: PASS
+- node --check runtime.template.js: PASS
+- node --check 15 Masters: PASS
+- py_compile factory_server.py: PASS
+- JSON manifests: PASS
+- factory-data preservado byte a byte em relação à v0.7.7: PASS

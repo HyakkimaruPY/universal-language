@@ -1,0 +1,70 @@
+TEST REPORT — Factory - Ance v0.8.3
+Data: 2026-09-05
+Resultado: PASS (testes locais; Android não executado)
+
+Gate executado:
+NODE_PATH=<dependencias-de-teste>/node_modules bash scripts/verify_release.sh
+Reprodução normal: npm ci --ignore-scripts && bash scripts/verify_release.sh
+
+1. Python: geração/registro/ícones/distribuição, com rede externa desabilitada por mock.
+2. Node legado: regressões até v0.8.2; DOM simplificado e transporte simulado.
+3. Node novo: 15 grupos com Cheerio 1.0.0 real e HTTP/storage simulados.
+4. node --check nos 15 Masters regenerados: PASS.
+5. Distribution Guard: somente 15 Masters; sem filhos/plugins oficiais/perfis/chaves: PASS.
+
+6. Diff: git apply --check sobre a base v0.8.2: PASS.
+
+Os testes novos abrangem:
+- Madara POST novo, POST antigo, IDs de obras diferentes e páginas intermediárias.
+- Archive ReadNovelFull com envelope JSON html.
+- Ausência de probes AJAX em DOM sem sinal do protocolo.
+- Página AJAX falha/repetida e catálogo HTML com página anunciada indisponível.
+- Cloudflare CDN/Turnstile embutido versus challenge real; 404 sem falso desafio.
+- Criação protegida, nova tentativa e erro de registro sem falso sucesso.
+- TTL/limite/identidade do cache.
+- Contrato parseNovel/parsePage local (49 capítulos = 24+24+1).
+- Protocolo remoto: 205 capítulos, 100 no primeiro fetch e 5 na página 3 sob demanda.
+- Charset legado: uma requisição, FileReader sobre a mesma resposta.
+
+Não executado: APK/build, emulador/aparelho, CAPTCHA real, cookies reais, disponibilidade
+atual de cada site, benchmark Hermes/FPS, todos os plugins oficiais.
+
+Log do gate:
+
+[release] 1/5 self-test Python
+[factory] Provedores locais: Pollinations, Z.AI, BigModel, Groq
+[perf][server] icon-resolve 2.1ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] register-profile 47.4ms host=m.zongheng.com profile=0.3ms child=0.2ms rebuild=46.9ms
+[perf][server] register-profile 0.5ms host=m.zongheng.com profile=0.4ms child=0.0ms rebuild=0.0ms
+[perf][server] icon-resolve 1.3ms host=icons.example candidates=15 saved=True
+[perf][server] icon-resolve 1.3ms host=t.mobile-icons.example candidates=16 saved=True
+[perf][server] icon-resolve 1.5ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] icon-resolve 2.2ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] icon-resolve 3.4ms host=novelasligeras.net candidates=13 saved=False
+[perf][server] register-profile 30.8ms host=novelasligeras.net profile=0.3ms child=0.1ms rebuild=30.3ms
+[factory] cliente encerrou a conexão antes da resposta: POST /api/factory/register
+OK — Factory 0.8.3: Shuqi, isolamento por obra, ícones e distribuição validados.
+[release] 2/5 runtime Node
+OK — regressões herdadas até v0.8.2: Shuqi completo, isolamento por obra, ícones, continuidade e adapters validados.
+[release] 3/5 arquiteturas com DOM real
+PASS Madara new POST + explicit page 2 + ascending chapters
+PASS Madara old endpoint uses current work ID, no copied source
+PASS ReadNovelFull archive + JSON html envelope
+PASS Unrecognized DOM does not probe AJAX endpoints
+PASS AJAX failed/repeated page never becomes a complete catalog
+PASS HTML catalog failure on announced page is explicit
+PASS Cloudflare CDN/embedded Turnstile does not block valid content
+PASS Cloudflare blocked document remains typed and no second transport
+PASS Protected creation produces installable pending child and allows retry
+PASS Registration failure is not advertised as creation success
+PASS Catalog expires in memory, bounded to four works, identity checked
+PASS parseNovel/parsePage contract and no invented chapter on empty catalog
+PASS Native remote pagination renders first 100 of 205, fetches page 3 on demand
+PASS Legacy encoding reads the same response, one HTTP request
+PASS AJAX pager showing only last page expands intermediate pages
+OK — 15 architecture regression groups (real DOM, mocked network).
+[release] 4/5 sintaxe dos 15 Masters
+[release] 5/5 distribution guard
+[distribution-guard] OK: <projeto>
+[distribution-guard] 15 Masters apenas; nenhum filho/plugin oficial/perfil/chave distribuído.
+[release] OK — árvore segura para empacotar/publicar.

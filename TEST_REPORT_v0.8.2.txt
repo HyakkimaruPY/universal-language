@@ -1,0 +1,32 @@
+Factory - Ance v0.8.2 — relatório de validação
+
+PASS  node scripts/runtime_self_test.js
+  - detalhe XS8 canônico reconhecido
+  - catálogo XS8 de bookId diferente rejeitado
+  - token de identidade Yuewen por bookId
+  - detecção Shuqi + paginação estática
+  - extração de bookId Shuqi
+  - MD5 interno validado contra md5("abc")
+  - payload chapterList Shuqi achatado por volumes
+  - recuperação sintética de catálogo Shuqi integral (60/60 capítulos)
+  - homepage Shuqi não fabrica página 2
+  - collector de cards Shuqi por URL de obra presente
+
+PASS  python scripts/self_test.py
+  - 15 Masters v0.8.2
+  - criação/entrega transitória de filhos
+  - isolamento de novelRoutes
+  - BrokenPipe tratado como cancelamento
+  - fallback de favicon por resolver/apex alcançável no orçamento de instalação
+  - Distribution Guard
+
+PASS  bash scripts/verify_release.sh
+PASS  node --check nos 15 Masters
+PASS  manifests JSON válidos
+
+Distribution Guard:
+  Masters: 15
+  Filhos pré-gerados: 0
+  Perfis: 0
+  Chaves: 0
+  Plugins oficiais copiados: 0

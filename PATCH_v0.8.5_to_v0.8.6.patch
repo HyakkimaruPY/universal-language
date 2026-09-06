@@ -1,0 +1,1425 @@
+--- /dev/null
++++ b/CHANGELOG_v0.8.6.md
+@@ -0,0 +1,69 @@
++# Factory - Ance v0.8.6 — retradução e paginação
++
++## Diagnóstico
++
++No log fornecido, a tradução inicial funciona no XS8, mas POST /api/factory/translate
++falha com RuntimeError. A versão anterior não registrava o erro de cada provedor;
++portanto não é possível provar retrospectivamente se foi HTTP 429, bloqueio,
++resposta inválida ou outro erro. Foi encontrada uma diferença concreta: o servidor
++não dividia trechos grandes antes de montar a URL Google; o runtime inicial dividia.
++Também foram encontrados repair:true ignorado e erros ocultados pelo leitor.
++
++## Alterações
++
++- Google no servidor divide texto pelo tamanho codificado da URL (3600 caracteres),
++  preserva todos os caracteres e a ordem, valida respostas e limita o tempo total.
++- A revisão por IA recebe original e tradução atual. Google continua como fallback;
++  repetir a tradução pelo mesmo motor pode retornar o mesmo texto, não uma melhora.
++- O leitor tenta Google diretamente se o servidor falhar. Essa tentativa continua
++  sujeita à rede/CORS/WebView; não é garantia contra bloqueios do provedor.
++- O leitor mostra progresso, erro, resposta inalterada ou sucesso. Não substitui o
++  texto anterior quando ambos os caminhos falham. Também rejeita resposta que
++  simplesmente devolve o original no lugar da tradução existente.
++- Ausência de data-th-original é sinalizada, evitando retraduzir a tradução como
++  se fosse o original. Para capítulos antigos sem esse atributo, recarregue o
++  capítulo pela extensão atualizada.
++- O log do servidor identifica provedor e categoria (ex.: google:HTTP_429), sem
++  imprimir URL, credenciais ou o trecho enviado. Isso permite diagnosticar a
++  próxima falha real sem depender apenas da classe RuntimeError.
++- Paginação: links de capítulo seguinte/recomendações não entram como páginas
++  obrigatórias do catálogo. Mantidos os erros quando uma página real falta.
++- Catálogos com rotas /book/<id> ou /chapterlist/<id> rejeitam /chapter/<outro-id>/...
++  para impedir mistura de capítulos de recomendações.
++
++## O que não está certificado
++
++Não houve teste Android nem acesso ao HTML autenticado atual de NovelLive/XS8.
++A paginação completa do NovelLive permanece pendente de validação real. Não foi
++adicionada API especulativa nem inventada quantidade de capítulos.
++
++Não há limite explícito de 98 capítulos no extrator revisado. A fixture com 300
++capítulos passa. Duas respostas reais com 98 não provam totalidade: podem exigir
++outra representação/paginação da fonte, e precisam ser confrontadas com o HTML.
++
++A alteração de trecho é visual na sessão de leitura; não promete persistir a revisão
++no arquivo baixado ou no cache interno do LNReader após fechar/reabrir.
++
++## Testes
++
++Suítes Python e Node legadas, 28 grupos Cheerio com rede simulada, testes do
++servidor de retradução e execução do JS de leitor realmente gerado. Incluem:
++chunking de chinês, recomposição exata, revisão com tradução atual, erros HTTP
++seguros, fallback direto, resposta igual, ausência de original, falha preservando
++texto, paginação de outra obra rejeitada, catálogo com 300 capítulos.
++Sintaxe dos 15 Masters e Distribution Guard aprovados. Sem compilação do app.
++
++## Instalação e teste no telefone
++
++1. Faça backup e preserve sua factory-data. Atualize os arquivos pelo ZIP.
++2. Reinicie bash scripts/serve_termux.sh; confirme v0.8.6.
++3. Atualize o Master, cole novamente a URL da fonte e instale a atualização do filho.
++   O leitor é um arquivo separado instalado junto com o filho: trocar só o servidor
++   não atualiza o comportamento visual do leitor já instalado.
++4. Feche/reabra o capítulo e dê dois toques rápidos no parágrafo. Observe o aviso.
++5. Se falhar, envie o novo POST /api/factory/translate ERROR e o aviso exibido.
++   Não envie chaves. Para investigar catálogos, o HTML de detalhes/catálogo após
++   WebView é mais informativo que apenas a contagem do log.
++
++Patches anteriores preservados. PATCH_v0.8.5_to_v0.8.6.patch reproduz esta versão
++sobre v0.8.5; PATCH_MANIFEST_v0.8.6.json registra hashes dos arquivos alterados.
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,7 @@
++# Atualização v0.8.6
++
++Consulte CHANGELOG_v0.8.6.md para retradução, instalação do leitor e limites.
++
+ # Atualização v0.8.5
+ 
+ Leia CHANGELOG_v0.8.5.md para correções, limites e reinstalação dos filhos.
+--- /dev/null
++++ b/TEST_REPORT_v0.8.6.txt
+@@ -0,0 +1,54 @@
++Execução offline em 2026-09-06; não certifica Android nem sites autenticados.
++
++[release] 1/5 self-test Python
++[factory] Provedores locais: Pollinations, Z.AI, BigModel, Groq
++[perf][server] icon-resolve 2.2ms host=m.zongheng.com candidates=16 saved=False
++[perf][server] register-profile 59.2ms host=m.zongheng.com profile=0.2ms child=0.1ms rebuild=58.9ms
++[perf][server] register-profile 0.2ms host=m.zongheng.com profile=0.2ms child=0.0ms rebuild=0.0ms
++[perf][server] icon-resolve 1.8ms host=icons.example candidates=15 saved=True
++[perf][server] icon-resolve 2.3ms host=t.mobile-icons.example candidates=16 saved=True
++[perf][server] icon-resolve 1.8ms host=m.zongheng.com candidates=16 saved=False
++[perf][server] icon-resolve 1.9ms host=m.zongheng.com candidates=16 saved=False
++[perf][server] icon-resolve 5.1ms host=novelasligeras.net candidates=13 saved=False
++[perf][server] register-profile 70.1ms host=novelasligeras.net profile=0.2ms child=0.2ms rebuild=69.7ms
++[factory] cliente encerrou a conexão antes da resposta: POST /api/factory/register
++OK — Factory 0.8.4: Shuqi, isolamento por obra, ícones e distribuição validados.
++PASS reader: original, repair payload, direct fallback, unchanged, failure preserved, missing original
++PASS retradução: chunking, revisão, diagnóstico seguro e leitor gerado
++[release] 2/5 runtime Node
++OK — regressões herdadas até v0.8.2: Shuqi completo, isolamento por obra, ícones, continuidade e adapters validados.
++[release] 3/5 arquiteturas com DOM real
++PASS Madara new POST + explicit page 2 + ascending chapters
++PASS Madara old endpoint uses current work ID, no copied source
++PASS ReadNovelFull archive + JSON html envelope
++PASS Unrecognized DOM does not probe AJAX endpoints
++PASS AJAX failed/repeated page never becomes a complete catalog
++PASS HTML catalog failure on announced page is explicit
++PASS Cloudflare CDN/embedded Turnstile does not block valid content
++PASS Cloudflare blocked document remains typed and no second transport
++PASS Protected creation produces installable pending child and allows retry
++PASS Registration failure is not advertised as creation success
++PASS Catalog expires in memory, bounded to four works, identity checked
++PASS parseNovel/parsePage contract and no invented chapter on empty catalog
++PASS Native remote pagination renders first 100 of 205, fetches page 3 on demand
++PASS Legacy encoding reads the same response, one HTTP request
++PASS AJAX pager showing only last page expands intermediate pages
++PASS HTTP 403 is not cached as empty; same child retries after WebView
++PASS Empty first page can recover without reinstalling
++PASS Quanben-style teaser recovers actual AMP with 2420 chapters
++PASS Novel OG vocabulary and static list cards work across hosts
++PASS Fictionposts AJAX uses real work ID and extracts TOC
++PASS Malformed translation batch falls back to individual ES titles
++PASS Mirror compatibility requires matching names and preserves hrefs
++PASS Rare number resets preserve volume sequence; duplicate URLs removed
++PASS Lazy cover overrides placeholder even with learned @src selector; name OG metadata
++PASS Large card DOM caches site metadata once and does not mix listing/detail URLs
++PASS Catalog failure preserves metadata without caching failure; retry restores chapters
++PASS Catalog pager excludes next chapter and unrelated recommendation pagination
++PASS Numeric work catalog excludes recommendation chapters and supports more than 98
++OK — 28 architecture regression groups (real DOM, mocked network).
++[release] 4/5 sintaxe dos 15 Masters
++[release] 5/5 distribution guard
++[distribution-guard] OK: <projeto>
++[distribution-guard] 15 Masters apenas; nenhum filho/plugin oficial/perfil/chave distribuído.
++[release] OK — árvore segura para empacotar/publicar.
+--- a/factory-templates/runtime.template.js
++++ b/factory-templates/runtime.template.js
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.dist/plugins.json
++++ b/lnreader-prebuilt/.dist/plugins.json
+@@ -4,7 +4,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Bahasa Indonesia",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_id.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -13,7 +13,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "English",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_en.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -22,7 +22,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Español",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_es.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -31,7 +31,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Français",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_fr.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -40,7 +40,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Polski",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_pl.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -49,7 +49,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Português",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_pt.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -58,7 +58,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Tiếng Việt",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_vi.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -67,7 +67,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Türkçe",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_tr.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -76,7 +76,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Русский",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ru.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -85,7 +85,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "Українська",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_uk.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -94,7 +94,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "‎العربية",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ar.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -103,7 +103,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "ไทย",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_th.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -112,7 +112,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "中文, 汉语, 漢語",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_zh.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -121,7 +121,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "日本語",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ja.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   },
+@@ -130,7 +130,7 @@
+     "name": "Factory - Ance",
+     "site": "https://github.com/lnreader/lnreader",
+     "lang": "조선말, 한국어",
+-    "version": "0.8.5",
++    "version": "0.8.6",
+     "url": "http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ko.js",
+     "iconUrl": "http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"
+   }
+--- a/lnreader-prebuilt/.dist/plugins.min.json
++++ b/lnreader-prebuilt/.dist/plugins.min.json
+@@ -1 +1 @@
+-[{"id":"translatorhell_master_id","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Bahasa Indonesia","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_id.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_en","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"English","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_en.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_es","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Español","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_es.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_fr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Français","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_fr.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_pl","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Polski","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_pl.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_pt","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Português","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_pt.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_vi","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Tiếng Việt","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_vi.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_tr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Türkçe","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_tr.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ru","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Русский","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ru.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_uk","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Українська","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_uk.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ar","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"‎العربية","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ar.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_th","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"ไทย","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_th.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_zh","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"中文, 汉语, 漢語","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_zh.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ja","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"日本語","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ja.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ko","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"조선말, 한국어","version":"0.8.5","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ko.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"}]
+\ No newline at end of file
++[{"id":"translatorhell_master_id","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Bahasa Indonesia","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_id.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_en","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"English","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_en.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_es","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Español","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_es.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_fr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Français","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_fr.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_pl","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Polski","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_pl.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_pt","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Português","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_pt.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_vi","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Tiếng Việt","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_vi.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_tr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Türkçe","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_tr.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ru","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Русский","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ru.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_uk","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"Українська","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_uk.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ar","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"‎العربية","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ar.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_th","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"ไทย","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_th.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_zh","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"中文, 汉语, 漢語","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_zh.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ja","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"日本語","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ja.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"},{"id":"translatorhell_master_ko","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","lang":"조선말, 한국어","version":"0.8.6","url":"http://127.0.0.1:8765/.js/src/plugins/multi/translatorHellMaster_ko.js","iconUrl":"http://127.0.0.1:8765/public/static/src/multi/translatorhell/factory_ance_v072.png"}]
+\ No newline at end of file
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ar.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ar.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_ar","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ar","targetLanguage":"ar","targetLabel":"العربية","manifestLang":"‎العربية","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"مصنع إضافات محلي لـ LNReader. يتعلم مواقع الروايات وينشئ مصادر قابلة للتثبيت ويترجم البيانات والفهارس والفصول. تبقى البيانات والمفاتيح على الجهاز. Output: العربية.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_ar","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ar","targetLanguage":"ar","targetLabel":"العربية","manifestLang":"‎العربية","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"مصنع إضافات محلي لـ LNReader. يتعلم مواقع الروايات وينشئ مصادر قابلة للتثبيت ويترجم البيانات والفهارس والفصول. تبقى البيانات والمفاتيح على الجهاز. Output: العربية.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_en.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_en.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_en","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"en","targetLanguage":"en","targetLabel":"English","manifestLang":"English","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Local plugin factory for LNReader. Learns novel sites, creates installable sources, and translates metadata, catalogs, and chapters. Data and keys stay on the device. Output: English.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_en","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"en","targetLanguage":"en","targetLabel":"English","manifestLang":"English","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Local plugin factory for LNReader. Learns novel sites, creates installable sources, and translates metadata, catalogs, and chapters. Data and keys stay on the device. Output: English.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_es.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_es.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_es","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"es","targetLanguage":"es","targetLabel":"Español","manifestLang":"Español","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fábrica local de plugins para LNReader. Aprende sitios de novelas, crea fuentes instalables y traduce metadatos, catálogos y capítulos. Los datos y claves permanecen en el dispositivo. Output: Español.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_es","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"es","targetLanguage":"es","targetLabel":"Español","manifestLang":"Español","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fábrica local de plugins para LNReader. Aprende sitios de novelas, crea fuentes instalables y traduce metadatos, catálogos y capítulos. Los datos y claves permanecen en el dispositivo. Output: Español.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_fr.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_fr.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_fr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"fr","targetLanguage":"fr","targetLabel":"Français","manifestLang":"Français","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fabrique locale de plugins pour LNReader. Elle apprend les sites de romans, crée des sources installables et traduit métadonnées, catalogues et chapitres. Données et clés restent sur l’appareil. Output: Français.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_fr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"fr","targetLanguage":"fr","targetLabel":"Français","manifestLang":"Français","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fabrique locale de plugins pour LNReader. Elle apprend les sites de romans, crée des sources installables et traduit métadonnées, catalogues et chapitres. Données et clés restent sur l’appareil. Output: Français.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_id.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_id.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_id","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"id","targetLanguage":"id","targetLabel":"Bahasa Indonesia","manifestLang":"Bahasa Indonesia","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Pabrik plugin lokal untuk LNReader. Mempelajari situs novel, membuat sumber yang dapat dipasang, dan menerjemahkan metadata, katalog, serta bab. Data dan kunci tetap di perangkat. Output: Bahasa Indonesia.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_id","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"id","targetLanguage":"id","targetLabel":"Bahasa Indonesia","manifestLang":"Bahasa Indonesia","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Pabrik plugin lokal untuk LNReader. Mempelajari situs novel, membuat sumber yang dapat dipasang, dan menerjemahkan metadata, katalog, serta bab. Data dan kunci tetap di perangkat. Output: Bahasa Indonesia.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ja.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ja.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_ja","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ja","targetLanguage":"ja","targetLabel":"日本語","manifestLang":"日本語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 用のローカルプラグイン工場。小説サイトを学習してインストール可能なソースを生成し、作品情報・目次・章を翻訳します。データとキーは端末内に保持されます。 Output: 日本語.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_ja","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ja","targetLanguage":"ja","targetLabel":"日本語","manifestLang":"日本語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 用のローカルプラグイン工場。小説サイトを学習してインストール可能なソースを生成し、作品情報・目次・章を翻訳します。データとキーは端末内に保持されます。 Output: 日本語.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ko.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ko.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_ko","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ko","targetLanguage":"ko","targetLabel":"한국어","manifestLang":"조선말, 한국어","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader용 로컬 플러그인 팩토리입니다. 소설 사이트를 학습해 설치 가능한 소스를 만들고 메타데이터, 목차, 챕터를 번역합니다. 데이터와 키는 기기에만 저장됩니다. Output: 한국어.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_ko","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ko","targetLanguage":"ko","targetLabel":"한국어","manifestLang":"조선말, 한국어","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader용 로컬 플러그인 팩토리입니다. 소설 사이트를 학습해 설치 가능한 소스를 만들고 메타데이터, 목차, 챕터를 번역합니다. 데이터와 키는 기기에만 저장됩니다. Output: 한국어.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pl.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pl.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_pl","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"pl","targetLanguage":"pl","targetLabel":"Polski","manifestLang":"Polski","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Lokalna fabryka wtyczek dla LNReader. Uczy się stron z powieściami, tworzy instalowalne źródła i tłumaczy metadane, katalogi oraz rozdziały. Dane i klucze pozostają na urządzeniu. Output: Polski.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_pl","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"pl","targetLanguage":"pl","targetLabel":"Polski","manifestLang":"Polski","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Lokalna fabryka wtyczek dla LNReader. Uczy się stron z powieściami, tworzy instalowalne źródła i tłumaczy metadane, katalogi oraz rozdziały. Dane i klucze pozostają na urządzeniu. Output: Polski.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pt.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pt.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_pt","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"pt","targetLanguage":"pt","targetLabel":"Português","manifestLang":"Português","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fábrica local de plugins para o LNReader. Aprende sites de novels, cria fontes instaláveis e traduz metadados, catálogos e capítulos. Dados e chaves permanecem no dispositivo. Output: Português.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_pt","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"pt","targetLanguage":"pt","targetLabel":"Português","manifestLang":"Português","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Fábrica local de plugins para o LNReader. Aprende sites de novels, cria fontes instaláveis e traduz metadados, catálogos e capítulos. Dados e chaves permanecem no dispositivo. Output: Português.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ru.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ru.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_ru","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ru","targetLanguage":"ru","targetLabel":"Русский","manifestLang":"Русский","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Локальная фабрика плагинов для LNReader. Изучает сайты новелл, создаёт устанавливаемые источники и переводит метаданные, каталоги и главы. Данные и ключи остаются на устройстве. Output: Русский.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_ru","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"ru","targetLanguage":"ru","targetLabel":"Русский","manifestLang":"Русский","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Локальная фабрика плагинов для LNReader. Изучает сайты новелл, создаёт устанавливаемые источники и переводит метаданные, каталоги и главы. Данные и ключи остаются на устройстве. Output: Русский.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_th.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_th.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_th","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"th","targetLanguage":"th","targetLabel":"ไทย","manifestLang":"ไทย","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"โรงงานปลั๊กอินภายในเครื่องสำหรับ LNReader เรียนรู้เว็บนิยาย สร้างแหล่งที่ติดตั้งได้ และแปลข้อมูล แคตตาล็อก และตอนต่าง ๆ โดยข้อมูลและคีย์อยู่บนอุปกรณ์เท่านั้น Output: ไทย.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_th","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"th","targetLanguage":"th","targetLabel":"ไทย","manifestLang":"ไทย","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"โรงงานปลั๊กอินภายในเครื่องสำหรับ LNReader เรียนรู้เว็บนิยาย สร้างแหล่งที่ติดตั้งได้ และแปลข้อมูล แคตตาล็อก และตอนต่าง ๆ โดยข้อมูลและคีย์อยู่บนอุปกรณ์เท่านั้น Output: ไทย.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_tr.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_tr.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_tr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"tr","targetLanguage":"tr","targetLabel":"Türkçe","manifestLang":"Türkçe","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader için yerel eklenti fabrikası. Roman sitelerini öğrenir, kurulabilir kaynaklar üretir ve meta verileri, katalogları, bölümleri çevirir. Veriler ve anahtarlar cihazda kalır. Output: Türkçe.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_tr","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"tr","targetLanguage":"tr","targetLabel":"Türkçe","manifestLang":"Türkçe","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader için yerel eklenti fabrikası. Roman sitelerini öğrenir, kurulabilir kaynaklar üretir ve meta verileri, katalogları, bölümleri çevirir. Veriler ve anahtarlar cihazda kalır. Output: Türkçe.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_uk.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_uk.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_uk","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"uk","targetLanguage":"uk","targetLabel":"Українська","manifestLang":"Українська","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Локальна фабрика плагінів для LNReader. Вивчає сайти новел, створює встановлювані джерела та перекладає метадані, каталоги й розділи. Дані та ключі залишаються на пристрої. Output: Українська.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_uk","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"uk","targetLanguage":"uk","targetLabel":"Українська","manifestLang":"Українська","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Локальна фабрика плагінів для LNReader. Вивчає сайти новел, створює встановлювані джерела та перекладає метадані, каталоги й розділи. Дані та ключі залишаються на пристрої. Output: Українська.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_vi.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_vi.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_vi","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"vi","targetLanguage":"vi","targetLabel":"Tiếng Việt","manifestLang":"Tiếng Việt","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Nhà máy plugin cục bộ cho LNReader. Tự học trang tiểu thuyết, tạo nguồn có thể cài đặt và dịch siêu dữ liệu, danh mục, chương. Dữ liệu và khóa luôn ở trên thiết bị. Output: Tiếng Việt.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_vi","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"vi","targetLanguage":"vi","targetLabel":"Tiếng Việt","manifestLang":"Tiếng Việt","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"Nhà máy plugin cục bộ cho LNReader. Tự học trang tiểu thuyết, tạo nguồn có thể cài đặt và dịch siêu dữ liệu, danh mục, chương. Dữ liệu và khóa luôn ở trên thiết bị. Output: Tiếng Việt.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_zh.js
++++ b/lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_zh.js
+@@ -4,7 +4,7 @@
+ const cheerio_1 = require("cheerio");
+ const filterInputs_1 = require("@libs/filterInputs");
+ const storage_1 = require("@libs/storage");
+-const CONFIG = {"id":"translatorhell_master_zh","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.5","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"zh","targetLanguage":"zh-CN","targetLabel":"中文","manifestLang":"中文, 汉语, 漢語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 本地插件工厂。自动学习小说网站，生成可安装书源，并翻译作品信息、目录与章节。数据和密钥只保存在设备本地。 Output: 中文.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
++const CONFIG = {"id":"translatorhell_master_zh","name":"Factory - Ance","site":"https://github.com/lnreader/lnreader","version":"0.8.6","mode":"master","factoryBase":"http://127.0.0.1:8765","targetKey":"zh","targetLanguage":"zh-CN","targetLabel":"中文","manifestLang":"中文, 汉语, 漢語","icon":"src/multi/translatorhell/factory_ance_v072.png","description":"LNReader 本地插件工厂。自动学习小说网站，生成可安装书源，并翻译作品信息、目录与章节。数据和密钥只保存在设备本地。 Output: 中文.","repository":"https://github.com/lnreader/lnreader","author":"Ance","localTranslationConfig":{"providers":{},"googleFallback":true}};
+ const FACTORY_SUCCESS_LABELS = {
+     id: 'Berhasil dibuat',
+     en: 'Created successfully',
+@@ -2318,6 +2318,9 @@
+                     let u, bu;
+                     try { u = new URL(href); bu = new URL(base); } catch (_) { return; }
+                     if (!this.sameSiteHost(u.hostname, bu.hostname)) return;
++                    const work = bu.pathname.match(/^\/(?:book|chapterlist)\/(\d+)(?:\.html)?\/?$/);
++                    const chapterWork = u.pathname.match(/^\/chapter\/(\d+)\//);
++                    if (work && chapterWork && work[1] !== chapterWork[1]) return;
+                     const text = this.norm(a.text());
+                     if (!this.isPlausibleChapterTitle(text, href, a)) return;
+                     const score = this.chapterLinkScore(text, href, a);
+@@ -3129,7 +3132,7 @@
+         const found = [], seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved); found.push({url:resolved,score,pageNo:Number.isFinite(pageNo)?pageNo:999999});
+         };
+         const raw=String(html||'');
+@@ -3183,12 +3186,23 @@
+         if(!best||best.max<3||best.max>180)return [];
+         const out=[]; for(let n=2;n<=best.max;n++)out.push(best.d.make(n)); return out;
+     }
++    isCatalogPageUrl(candidate, base) {
++        try {
++            const a = new URL(candidate), b = new URL(base);
++            if (!this.sameSiteHost(a.hostname, b.hostname)) return false;
++            const strip = u => u.pathname.replace(/\/page\/\d+\/?$/, '/').replace(/_(\d+)(\.html?)$/, '$2').replace(/\/$/, '');
++            if (strip(a) !== strip(b)) return false;
++            // Pagination changes page keys only, not book IDs or search context.
++            for (const u of [a,b]) {u.hash='';for(const k of ['page','p','pageNo','pageNum','paged'])u.searchParams.delete(k);}
++            return a.search === b.search;
++        } catch (_) {return false;}
++    }
+     findCatalogPageCandidates($, base, visited = new Set()) {
+         const found = [];
+         const seen = new Set();
+         const add = (href, score, pageNo) => {
+             const resolved = this.resolveAgainst(href, base);
+-            if (!resolved || visited.has(resolved) || seen.has(resolved)) return;
++            if (!resolved || !this.isCatalogPageUrl(resolved, base) || visited.has(resolved) || seen.has(resolved)) return;
+             seen.add(resolved);
+             found.push({ url: resolved, score, pageNo: Number.isFinite(pageNo) ? pageNo : 999999 });
+         };
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,12 +1,12 @@
+ {
+   "name": "factory-ance-regression-tests",
+-  "version": "0.8.5",
++  "version": "0.8.6",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+       "name": "factory-ance-regression-tests",
+-      "version": "0.8.5",
++      "version": "0.8.6",
+       "devDependencies": {
+         "cheerio": "1.0.0"
+       }
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "factory-ance-regression-tests",
+-  "version": "0.8.5",
++  "version": "0.8.6",
+   "private": true,
+   "description": "Development-only DOM tests; not used by the Factory server or Android plugins",
+   "scripts": {
+--- a/scripts/architecture_self_test.js
++++ b/scripts/architecture_self_test.js
+@@ -180,5 +180,14 @@
+   p.extractChaptersDeep=async()=>({chapters:[{name:'Chapter 1',path:'https://fixture.test/book/alpha/1'}]});
+   const full=await p.parseNovel('https://fixture.test/book/alpha');assert.equal(full.chapters.length,1);
+  });
++ await test('Catalog pager excludes next chapter and unrelated recommendation pagination',async()=>{
++  const p=make();const base='https://fixture.test/n/a/list.html';const html='<a rel="next" href="/n/a/2.html">Next chapter</a><a href="/n/b/list_2.html">Next page</a><a href="list_2.html">Next page</a>';
++  const dom=p.findCatalogPageCandidates(cheerio.load(html),base);assert.deepEqual(Array.from(dom),['https://fixture.test/n/a/list_2.html']);
++  const raw=p.findCatalogPageCandidatesRaw(html,base);assert.deepEqual(Array.from(raw),['https://fixture.test/n/a/list_2.html']);
++ });
++ await test('Numeric work catalog excludes recommendation chapters and supports more than 98',async()=>{
++  const p=make();const html='<ul class="chapter-list">'+Array.from({length:300},(_,i)=>`<li><a href="/chapter/42/${10000+i}">第${i+1}章 标题</a></li>`).join('')+'<li><a href="/chapter/99/77777">第1章 Other work</a></li></ul>';
++  const rows=p.extractChapterLinks(cheerio.load(html),'https://fixture.test/chapterlist/42','.chapter-list a');assert.equal(rows.length,300);assert.ok(rows.every(x=>x.path.includes('/chapter/42/')));
++ });
+  console.log(`OK — ${count} architecture regression groups (real DOM, mocked network).`);
+ })().catch(e=>{console.error(e);process.exitCode=1;});
+--- a/scripts/factory_server.py
++++ b/scripts/factory_server.py
+@@ -27,7 +27,7 @@
+ CREDENTIALS_FILE = DATA_DIR / 'credentials.json'
+ MASTER_ICON_REL = 'src/multi/translatorhell/factory_ance_v072.png'
+ MASTER_ICON = WEBROOT / ('public/static/' + MASTER_ICON_REL)
+-VERSION = '0.8.5'
++VERSION = '0.8.6'
+ MASTER_NAME = 'Factory - Ance'
+ PROJECT_GITHUB = os.environ.get('TH_FACTORY_GITHUB', '').strip()
+ LNREADER_GITHUB = 'https://github.com/lnreader/lnreader'
+@@ -420,19 +420,50 @@
+     return value
+ 
+ 
++def translation_error_code(error):
++    # Never include request URLs, credentials or source text in diagnostics.
++    status = getattr(error, 'code', None)
++    if isinstance(status, int):
++        return 'HTTP_' + str(status)
++    if isinstance(error, (TimeoutError,)):
++        return 'TIMEOUT'
++    if isinstance(error, (ValueError, KeyError, IndexError)):
++        return 'INVALID_RESPONSE'
++    return type(error).__name__
++
++
+ def google_translate(text, target_language):
+-    url = (
+-        'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' +
+-        quote_plus(str(target_language or 'pt')) + '&dt=t&q=' + quote_plus(str(text or ''))
+-    )
+-    req = Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json,text/plain,*/*'})
+-    with urlopen(req, timeout=30) as r:
+-        data = json.loads(r.read(4 * 1024 * 1024).decode('utf-8'))
+-    parts = data[0] if isinstance(data, list) and data else []
+-    value = ''.join(str(part[0] or '') for part in parts if isinstance(part, list) and part)
+-    if not audit_translation(text, value):
+-        raise RuntimeError('Google retornou tradução inválida')
+-    return value
++    source = str(text or '')
++    if not source.strip():
++        return source
++    # Bound encoded GET size too: CJK characters occupy nine URL bytes each.
++    chunks, chunk, size = [], '', 0
++    for char in source:
++        cost = len(quote_plus(char))
++        if size + cost > 3600 and chunk:
++            chunks.append(chunk)
++            chunk, size = '', 0
++        chunk += char
++        size += cost
++    if chunk:
++        chunks.append(chunk)
++    translated = []
++    deadline = time.monotonic() + 25
++    for chunk in chunks:
++        remaining = deadline - time.monotonic()
++        if remaining <= 0:
++            raise TimeoutError('Google timeout')
++        url = ('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' +
++               quote_plus(str(target_language or 'pt')) + '&dt=t&q=' + quote_plus(chunk))
++        req = Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'})
++        with urlopen(req, timeout=min(10, remaining)) as response:
++            data = json.loads(response.read(4 * 1024 * 1024).decode('utf-8'))
++        parts = data[0] if isinstance(data, list) and data else []
++        value = ''.join(part[0] for part in parts if isinstance(part, list) and part and isinstance(part[0], str)) if isinstance(parts, list) else ''
++        if not audit_translation(chunk, value):
++            raise ValueError('invalid Google response')
++        translated.append(value)
++    return ''.join(translated)
+ 
+ 
+ def provider_available(provider):
+@@ -453,7 +484,7 @@
+     }
+ 
+ 
+-def translate_with_fallback(text, target_language, target_label):
++def translate_with_fallback(text, target_language, target_label, current_translation=None):
+     source = str(text or '')
+     if not source.strip():
+         return source, 'none'
+@@ -466,7 +497,8 @@
+         if not provider_available(provider):
+             continue
+         try:
+-            value = ai_translate(provider, keys[provider], models.get(provider) or PROVIDERS[provider]['model'], source, target_label)
++            value = (ai_repair(provider, keys[provider], models.get(provider) or PROVIDERS[provider]['model'], source, current_translation, target_label)
++                     if current_translation else ai_translate(provider, keys[provider], models.get(provider) or PROVIDERS[provider]['model'], source, target_label))
+             if needs_translation_repair(source, value, target_language):
+                 for reviewer in order:
+                     if reviewer == provider or not provider_available(reviewer):
+@@ -481,11 +513,11 @@
+             return value, provider
+         except Exception as e:
+             provider_failure(provider)
+-            errors.append(f'{provider}: {e}')
++            errors.append(f'{provider}:{translation_error_code(e)}')
+     try:
+         return google_translate(source, target_language), 'google'
+     except Exception as e:
+-        errors.append(f'google: {e}')
++        errors.append(f'google:{translation_error_code(e)}')
+         raise RuntimeError(' | '.join(errors) or 'nenhum tradutor disponível')
+ 
+ 
+@@ -910,7 +942,12 @@
+ function clean(root){for(const el of ((root||document).querySelectorAll?.('p,div,span,a')||[])){if(el.children&&el.children.length>0)continue;const t=String(el.textContent||'').replace(/\s+/g,' ').trim();if(t.length<=64&&exactNoise.test(t))el.setAttribute('data-th-noise','1');}document.documentElement?.setAttribute('data-translatorhell-reader','1');}
+ function targetOf(node){const el=node?.closest?.('#LNReader-chapter p[data-th-original],#LNReader-chapter p,#LNReader-chapter div[data-th-original]');if(!el)return null;const t=String(el.textContent||'').trim();return t.length>=2&&t.length<=6000?el:null;}
+ function notify(type,data){try{window.ReactNativeWebView?.postMessage(JSON.stringify({type,data}));}catch(_){}}
+-async function correct(el){if(!el||el.dataset.thBusy==='1')return;const original=String(el.dataset.thOriginal||el.textContent||'').trim();if(!original)return;el.dataset.thBusy='1';el.classList.add('th-retranslating');const before=String(el.textContent||'').trim();try{const r=await fetch(C.factoryBase+'/api/factory/translate',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({text:original,targetLanguage:C.targetLanguage,targetLabel:C.targetLabel,repair:true})});const d=await r.json();const value=String(d?.translation||'').trim();if(!r.ok||!value)throw new Error(d?.error||'translate failed');el.textContent=value;el.dataset.thCorrected='1';el.classList.add('th-corrected');}catch(_){notify('text-action',{replace:before});}finally{delete el.dataset.thBusy;el.classList.remove('th-retranslating');}}
++function message(text){let box=document.getElementById('th-translation-status');if(!box){box=document.createElement('div');box.id='th-translation-status';box.setAttribute('role','status');box.style.cssText='position:fixed;bottom:24px;left:5%;right:5%;padding:12px;background:#222;color:#fff;z-index:2147483647;border-radius:8px;font-size:14px';document.body.appendChild(box);}box.textContent=text;clearTimeout(box.thTimer);box.thTimer=setTimeout(()=>box.remove(),7000);}
++const labels=C.targetLanguage==='es'?{busy:'Retraduciendo…',same:'El traductor devolvió el mismo texto.',ok:'Traducción actualizada.',fail:'No se pudo retraducir. El texto anterior se conservó.'}:C.targetLanguage==='pt'?{busy:'Retraduzindo…',same:'O tradutor devolveu o mesmo texto.',ok:'Tradução atualizada.',fail:'Não foi possível retraduzir. O texto anterior foi preservado.'}:{busy:'Retranslating…',same:'The translator returned the same text.',ok:'Translation updated.',fail:'Retranslation failed. Previous text preserved.'};
++async function timedFetch(url,init,timeout=30000){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);try{const r=await fetch(url,{...init,signal:controller.signal});const d=await r.json();if(!r.ok)throw Error('HTTP '+r.status);return d;}finally{clearTimeout(timer);}}
++async function directGoogle(source){const chunks=[];let chunk='',size=0;for(const char of source){const cost=encodeURIComponent(char).length;if(size+cost>3600&&chunk){chunks.push(chunk);chunk='';size=0;}chunk+=char;size+=cost;}if(chunk)chunks.push(chunk);const out=[];const deadline=Date.now()+30000;for(const part of chunks){if(Date.now()>deadline)throw Error('TIMEOUT');const d=await timedFetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl='+encodeURIComponent(C.targetLanguage)+'&dt=t&q='+encodeURIComponent(part),{method:'GET'},Math.max(1,deadline-Date.now()));const value=Array.isArray(d?.[0])?d[0].map(x=>typeof x?.[0]==='string'?x[0]:'').join(''):'';if(!value.trim())throw Error('EMPTY_RESPONSE');out.push(value);}return out.join('');}
++async function correct(el){if(!el||el.dataset.thBusy==='1')return;const original=String(el.dataset.thOriginal||'').trim();if(!original){message(labels.fail+' (MISSING_ORIGINAL)');return;}el.dataset.thBusy='1';el.classList.add('th-retranslating');const before=String(el.textContent||'').trim();message(labels.busy);try{let value;try{const d=await timedFetch(C.factoryBase+'/api/factory/translate',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({text:original,currentTranslation:before,targetLanguage:C.targetLanguage,targetLabel:C.targetLabel,repair:true})});value=String(d?.translation||'').trim();if(!value)throw Error('EMPTY_RESPONSE');}catch(_){value=await directGoogle(original);}if(value.trim()===before){message(labels.same);return;}if(value.trim()===original&&original!==before)throw Error('UNTRANSLATED_RESPONSE');el.textContent=value;el.dataset.thCorrected='1';el.classList.add('th-corrected');message(labels.ok);}catch(error){message(labels.fail+' ('+String(error?.message||'NETWORK_ERROR').slice(0,70)+')');}finally{delete el.dataset.thBusy;el.classList.remove('th-retranslating');}}
++
+ document.addEventListener('dblclick',e=>{const el=targetOf(e.target);if(el){e.preventDefault();e.stopPropagation();correct(el);}},true);
+ let lastEl=null,lastAt=0;document.addEventListener('pointerup',e=>{if(e.pointerType&&e.pointerType!=='touch')return;const el=targetOf(e.target);if(!el){lastEl=null;lastAt=0;return;}const now=Date.now();if(lastEl===el&&now-lastAt<360){e.preventDefault();e.stopPropagation();lastEl=null;lastAt=0;correct(el);}else{lastEl=el;lastAt=now;}},true);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>clean(document),{once:true});else clean(document);
+@@ -1377,7 +1414,8 @@
+                 target_language = str(body.get('targetLanguage') or 'pt')
+                 target_label = str(body.get('targetLabel') or target_language)
+                 stage = time.perf_counter()
+-                translated, provider = translate_with_fallback(text, target_language, target_label)
++                current = str(body.get('currentTranslation') or '')[:12000] if body.get('repair') else None
++                translated, provider = translate_with_fallback(text, target_language, target_label, current)
+                 translate_ms = (time.perf_counter() - stage) * 1000.0
+                 self.perf_log('POST /api/factory/translate', request_started, provider=provider, chars=len(text), translate=f'{translate_ms:.1f}ms')
+                 return self.json_response(200, {'ok': True, 'translation': translated, 'provider': provider})
+@@ -1396,7 +1434,7 @@
+         except (BrokenPipeError, ConnectionResetError):
+             return None
+         except Exception as e:
+-            self.perf_log(f'POST {parsed.path} ERROR', request_started, error=type(e).__name__)
++            self.perf_log(f'POST {parsed.path} ERROR', request_started, error=(str(e)[:240] if parsed.path == '/api/factory/translate' and isinstance(e, RuntimeError) else translation_error_code(e)))
+             return self.json_response(400, {'ok': False, 'error': str(e)})
+         self.perf_log(f'POST {parsed.path} 404', request_started)
+         return self.json_response(404, {'ok': False, 'error': 'not found'})
+--- /dev/null
++++ b/scripts/reader_retranslation_self_test.js
+@@ -0,0 +1,22 @@
++'use strict';
++const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
++const code=fs.readFileSync(process.argv[2],'utf8').replace("document.addEventListener('dblclick'", "window.correctForTest=correct;document.addEventListener('dblclick'");
++async function run(fetcher, original='原文',before='Anterior'){
++ let status;const box={style:{},setAttribute(){},remove(){},set textContent(x){status=x;}};
++ const document={readyState:'loading',addEventListener(){},getElementById(){return box;},createElement(){return box;},body:{appendChild(){}},documentElement:{}};
++ const window={};const context={document,window,fetch:fetcher,AbortController,console,setTimeout:()=>1,clearTimeout(){}};
++ vm.runInNewContext(code,context);
++ const el={dataset:original?{thOriginal:original}:{},textContent:before,classList:{add(){},remove(){}}};
++ await window.correctForTest(el);return {el,status};
++}
++const response=(d,ok=true)=>({ok,status:ok?200:503,json:async()=>d});
++(async()=>{
++ let request;let r=await run(async(u,i)=>{request=JSON.parse(i.body);return response({translation:'Nueva'});});
++ assert.equal(r.el.textContent,'Nueva');assert.equal(request.text,'原文');assert.equal(request.currentTranslation,'Anterior');assert.equal(request.repair,true);
++ let calls=0;r=await run(async u=>{calls++;if(u.includes('/api/factory/'))throw Error('offline');return response([[['Respaldo']]]);});assert.equal(r.el.textContent,'Respaldo');assert.equal(calls,2);
++ r=await run(async()=>{throw Error('NETWORK_ERROR');});assert.equal(r.el.textContent,'Anterior');assert.match(r.status,/conservó/);assert.equal(r.el.dataset.thBusy,undefined);assert.equal(r.el.dataset.thCorrected,undefined);
++ r=await run(async()=>response({translation:'Anterior'}));assert.equal(r.el.dataset.thCorrected,undefined);assert.match(r.status,/mismo texto/);
++ r=await run(async()=>response({translation:'原文'}));assert.equal(r.el.textContent,'Anterior');assert.equal(r.el.dataset.thCorrected,undefined);
++ r=await run(async()=>{throw Error('must not fetch');},'');assert.match(r.status,/MISSING_ORIGINAL/);
++ console.log('PASS reader: original, repair payload, direct fallback, unchanged, failure preserved, missing original');
++})().catch(e=>{console.error(e);process.exitCode=1;});
+--- /dev/null
++++ b/scripts/retranslation_self_test.py
+@@ -0,0 +1,38 @@
++"""Offline transport tests for the actual server and generated reader."""
++import importlib.util, json, tempfile, subprocess
++from pathlib import Path
++from urllib.parse import parse_qs, urlparse
++from urllib.error import HTTPError
++ROOT = Path(__file__).resolve().parent.parent
++spec=importlib.util.spec_from_file_location('server',ROOT/'scripts/factory_server.py')
++m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
++requests=[]
++class Response:
++ def __enter__(self): return self
++ def __exit__(self,*args): pass
++ def read(self,*args): return json.dumps([[[requests[-1][1],None]]]).encode()
++def transport(req,timeout):
++ source=parse_qs(urlparse(req.full_url).query)['q'][0]
++ requests.append((req.full_url,source))
++ assert len(req.full_url)<4000
++ return Response()
++m.urlopen=transport
++source=('这是一个测试段落。\n'*150)+' End.'
++assert m.google_translate(source,'es')==source
++assert len(requests)>1
++assert ''.join(x[1] for x in requests)==source
++assert m.translation_error_code(HTTPError('https://private/key',429,'secret',{},None))=='HTTP_429'
++m.read_credentials=lambda:{'keys':{'groq':'private'},'models':{},'order':['groq']}
++m.ai_repair=lambda *a: 'REPAIRED:'+a[-2]
++m.ai_translate=lambda *a: (_ for _ in ()).throw(AssertionError('must use repair'))
++assert m.translate_with_fallback('original','es','Español','current')[0]=='REPAIRED:current'
++m.ai_repair=lambda *a: (_ for _ in ()).throw(HTTPError('private',401,'secret',{},None))
++m.google_translate=lambda *a: (_ for _ in ()).throw(HTTPError('private',429,'secret',{},None))
++try: m.translate_with_fallback('original','es','Español','current')
++except RuntimeError as e: assert str(e)=='groq:HTTP_401 | google:HTTP_429'
++else: raise AssertionError('failure swallowed')
++with tempfile.TemporaryDirectory() as temp:
++ m.WEBROOT=Path(temp)
++ rel=m.write_child_reader_runtime({'host':'fixture.test'},'es')
++ subprocess.run(['node',str(ROOT/'scripts/reader_retranslation_self_test.js'),str(m.WEBROOT/rel)],check=True)
++print('PASS retradução: chunking, revisão, diagnóstico seguro e leitor gerado')
+--- a/scripts/self_test.py
++++ b/scripts/self_test.py
+@@ -67,7 +67,7 @@
+     assert byok['groq'] == 'UPPER_G'
+ 
+     assert all(x['name'] == 'Factory - Ance' for x in manifest)
+-    assert all(x['version'] == '0.8.5' for x in manifest)
++    assert all(x['version'] == '0.8.6' for x in manifest)
+     profile, created = M.register_profile({
+         'host': 'm.zongheng.com',
+         'origin': 'https://m.zongheng.com',
+--- a/scripts/verify_release.sh
++++ b/scripts/verify_release.sh
+@@ -5,6 +5,7 @@
+ 
+ echo "[release] 1/5 self-test Python"
+ python scripts/self_test.py
++python scripts/retranslation_self_test.py
+ 
+ echo "[release] 2/5 runtime Node"
+ node scripts/runtime_self_test.js

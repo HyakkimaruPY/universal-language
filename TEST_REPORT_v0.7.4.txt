@@ -1,0 +1,39 @@
+Factory - Ance v0.7.4 ESTÁVEL — relatório de validação
+Base: Estável_Factory_v0.7.3.zip
+Importante: nenhuma antiga v0.7.4 Beta foi usada como base.
+
+CORREÇÕES VERIFICADAS
+- identidade por obra = plugin ID + URL canônica;
+- catalogUrl/novelUrl removidos do estado global do host;
+- novelRoutes mantém rotas separadas por obra;
+- A -> B na mesma extensão não reutiliza catálogo de A;
+- metadata parse single-flight por obra;
+- fetch de catálogo single-flight por rota;
+- até 4 rotas alternativas/recovery em paralelo;
+- catálogo grande tenta recorte do TOC antes do Cheerio;
+- fallback de HTML completo preservado;
+- parsePage/paginação nativa preservada;
+- Cloudflare/Turnstile + webStorageUtilized=true preservados;
+- BYOK/fallback Google preservados;
+- factory-data original preservado.
+
+TESTES EXECUTADOS
+- python3 scripts/self_test.py: OK
+- node scripts/runtime_self_test.js: OK
+- node --check em todos os 15 Masters gerados: OK
+- transpile de runtime.template.ts via TypeScript 5.8.3: OK
+- JSON de plugins.json/plugins.min.json e factory-data: OK
+
+REGRESSÕES EXPLÍCITAS
+- rota aprendida de A não é consultada ao abrir B;
+- capítulos de A não aparecem em B;
+- identidades de A e B não colidem;
+- duas chamadas simultâneas da mesma obra executam parseFresh uma vez;
+- catálogo teaser com lacunas continua sendo recuperado;
+- Turnstile e Managed Challenge continuam detectados.
+
+BENCHMARK SINTÉTICO DO RECORTE DE CATÁLOGO
+- entrada: 8.009.463 bytes
+- conteúdo entregue ao parser: 9.416 bytes
+- redução: 99,88%
+- o recorte só é utilizado quando há evidência suficiente de TOC; caso contrário o runtime preserva o HTML completo.

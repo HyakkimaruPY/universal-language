@@ -235,7 +235,7 @@ GUARD.verify_package(ROOT)
 with tempfile.TemporaryDirectory() as td:
     td = Path(td)
     shutil.copytree(ROOT / 'lnreader-prebuilt', td / 'lnreader-prebuilt')
-    shutil.copytree(ROOT / 'factory-data', td / 'factory-data')
+    (td / 'factory-data').mkdir()  # Empty isolated state; no developer data required.
     leaked = td / 'lnreader-prebuilt/.js/src/plugins/english/NOVA.js'
     leaked.parent.mkdir(parents=True, exist_ok=True)
     leaked.write_text('// reference plugin accidentally copied', 'utf-8')
@@ -249,7 +249,7 @@ with tempfile.TemporaryDirectory() as td:
 with tempfile.TemporaryDirectory() as td:
     td = Path(td)
     shutil.copytree(ROOT / 'lnreader-prebuilt', td / 'lnreader-prebuilt')
-    shutil.copytree(ROOT / 'factory-data', td / 'factory-data')
+    (td / 'factory-data').mkdir()  # Empty isolated state; no developer data required.
     (td / 'factory-data/children.json').write_text('[{"host":"example.org"}]', 'utf-8')
     try:
         GUARD.verify_package(td)
@@ -257,4 +257,4 @@ with tempfile.TemporaryDirectory() as td:
     except GUARD.GuardError:
         pass
 
-print('OK — Factory 0.8.4: Shuqi, isolamento por obra, ícones e distribuição validados.')
+print(f'OK — Factory {M.VERSION}: Shuqi, isolamento por obra, ícones e distribuição validados.')

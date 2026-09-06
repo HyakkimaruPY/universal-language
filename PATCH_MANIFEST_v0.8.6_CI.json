@@ -1,0 +1,11 @@
+{
+  "base_commit": "6da1597ee04b22c5aba493b15b7142d7ed46f02a",
+  "reason": "CI tests must create isolated empty factory-data rather than copying developer data",
+  "files": [
+    {
+      "path": "scripts/self_test.py",
+      "before_sha256": "4e946822353b9f0db54c70b29a90b95c91656ab7cc0ad439c2b88007f1183670",
+      "after_sha256": "1a35a450ae13686762fb0c6fc2c6bf105e89646ac5f6588336066367a539f06a"
+    }
+  ]
+}

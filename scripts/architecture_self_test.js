@@ -8,8 +8,8 @@ const cheerio = require('cheerio');
 const template = fs.readFileSync(path.resolve(__dirname, '../factory-templates/runtime.template.js'), 'utf8');
 let count = 0;
 function make(mode = 'child', network = async () => { throw Error('unexpected network'); }, extra = {}) {
-  const config = {id:'test',name:'Test',mode,host:'fixture.test',site:'https://fixture.test',targetKey:'pt',targetLanguage:'pt',targetLabel:'Português',perfDebug:false};
-  const kv = new Map();
+  const config = {id:'test',name:'Test',mode,host:'fixture.test',site:'https://fixture.test',targetKey:'pt',targetLanguage:'pt',targetLabel:'Português',perfDebug:false,...(extra.config || {})};
+  const kv = extra.kv || new Map();
   const context = {...extra, exports:{},URL,URLSearchParams,AbortController,TextDecoder,Uint8Array,Date,Math,JSON,Promise,Map,Set,console,setTimeout,clearTimeout,
     require(name) {
       if (name === 'cheerio') return cheerio;
@@ -188,6 +188,36 @@ async function test(label, run) {await run();console.log('PASS '+label);count++;
  await test('Numeric work catalog excludes recommendation chapters and supports more than 98',async()=>{
   const p=make();const html='<ul class="chapter-list">'+Array.from({length:300},(_,i)=>`<li><a href="/chapter/42/${10000+i}">第${i+1}章 标题</a></li>`).join('')+'<li><a href="/chapter/99/77777">第1章 Other work</a></li></ul>';
   const rows=p.extractChapterLinks(cheerio.load(html),'https://fixture.test/chapterlist/42','.chapter-list a');assert.equal(rows.length,300);assert.ok(rows.every(x=>x.path.includes('/chapter/42/')));
+ });
+ await test('Device sources survive restart, isolate hosts and never request Factory API',async()=>{
+  const kv=new Map();const extra={kv,config:{deviceMode:true,host:undefined,factoryBase:''}};
+  const p=make('master',async()=>{throw Error('unexpected network');},extra);
+  await p.registerProfile({host:'a.test',origin:'https://a.test',selectors:{title:'.title-a'}});
+  await p.registerProfile({host:'b.test',origin:'https://b.test',selectors:{title:'.title-b'}});
+  await p.refineProfile({host:'a.test',selectors:{summary:'.summary-a'}});
+  kv.set('sourceHost','b.test');kv.set('apiKeyG','private-test-key');
+  const q=make('master',async()=>{throw Error('unexpected network');},extra);
+  assert.equal((await q.getProfiles()).length,2);assert.equal((await q.getCurrentProfile()).host,'b.test');assert.equal(q.site,'https://b.test');
+  assert.equal((await q.profileForUrl('https://a.test/book/1')).selectors.title,'.title-a');
+  assert.equal((await q.profileForUrl('https://b.test/book/1')).selectors.summary,undefined);
+  assert.equal((await q.loadTranslationConfig()).providers.G.key,'private-test-key');
+  assert.equal(q.factoryBase,'');assert.equal(q.pluginSettings.sourceHost.options.length,2);
+  await assert.rejects(()=>q.factoryRequest('/api/factory/register'),/no server API/);
+ });
+ await test('Device URL activates local source, returns real books, preserves blocked profile',async()=>{
+  const p=make('master',undefined,{config:{deviceMode:true}});
+  p.getText=async()=>'<h1>Portal</h1><div class="list2"><h3><a href="/n/alpha/">Alpha Adventure</a></h3></div>';
+  p.getPopularSourcePage=async(profile)=>[{name:'Alpha Adventure',path:profile.origin+'/n/alpha/'}];
+  const items=await p.searchNovels('https://a.test/',1);assert.equal(items[0].path,'https://a.test/n/alpha/');assert.equal((await p.getProfiles()).length,1);
+  assert.equal((await p.searchNovels('https://a.test/',2)).length,0);
+  p.getText=async()=>{throw Object.assign(Error('challenge'),{cloudflare:true});};
+  await assert.rejects(()=>p.searchNovels('https://b.test/',1),/challenge/);
+  assert.equal(p.site,'https://b.test');assert.equal((await p.getCurrentProfile()).host,'b.test');assert.equal((await p.getProfiles()).length,2);
+ });
+ await test('Stored category from another device source cannot redirect browsing',async()=>{
+  const p=make();const profile={host:'b.test',filterDefinitions:[{key:'cat',mode:'url',options:[{value:'https://b.test/category/1'}]}]};
+  assert.equal(p.applyDetectedFiltersToUrl('https://b.test/',profile,{cat:'https://a.test/category/1'}),'https://b.test/');
+  assert.equal(p.applyDetectedFiltersToUrl('https://b.test/',profile,{cat:'https://b.test/category/1'}),'https://b.test/category/1');
  });
  console.log(`OK — ${count} architecture regression groups (real DOM, mocked network).`);
 })().catch(e=>{console.error(e);process.exitCode=1;});

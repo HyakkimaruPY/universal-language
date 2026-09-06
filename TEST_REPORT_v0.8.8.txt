@@ -1,0 +1,62 @@
+Testes locais com rede simulada; não é teste Android.
+
+[release] 1/5 self-test Python
+[factory] Provedores locais: Pollinations, Z.AI, BigModel, Groq
+[perf][server] icon-resolve 3.9ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] register-profile 108.7ms host=m.zongheng.com profile=0.2ms child=0.2ms rebuild=108.3ms
+[perf][server] register-profile 0.3ms host=m.zongheng.com profile=0.3ms child=0.0ms rebuild=0.0ms
+[perf][server] icon-resolve 2.6ms host=icons.example candidates=15 saved=True
+[perf][server] icon-resolve 3.5ms host=t.mobile-icons.example candidates=16 saved=True
+[perf][server] icon-resolve 6.3ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] icon-resolve 2.7ms host=m.zongheng.com candidates=16 saved=False
+[perf][server] icon-resolve 3.6ms host=novelasligeras.net candidates=13 saved=False
+[perf][server] register-profile 34.8ms host=novelasligeras.net profile=0.3ms child=0.2ms rebuild=34.4ms
+[factory] cliente encerrou a conexão antes da resposta: POST /api/factory/register
+OK — Factory 0.8.8: Shuqi, isolamento por obra, ícones e distribuição validados.
+PASS reader: original, repair payload, direct fallback, unchanged, failure preserved, missing original
+PASS device reader: Google direct, zero local-server requests
+PASS retradução: chunking, revisão, diagnóstico seguro e leitor gerado
+/tmp/tmpddnoey_k/public
+Masters: 15
+No children/profiles/credentials exported.
+PASS public repository: 15 downloadable Masters, existing assets, device mode, no server API, no keys
+[release] 2/5 runtime Node
+OK — regressões herdadas até v0.8.2: Shuqi completo, isolamento por obra, ícones, continuidade e adapters validados.
+[release] 3/5 arquiteturas com DOM real
+PASS Madara new POST + explicit page 2 + ascending chapters
+PASS Madara old endpoint uses current work ID, no copied source
+PASS ReadNovelFull archive + JSON html envelope
+PASS Unrecognized DOM does not probe AJAX endpoints
+PASS AJAX failed/repeated page never becomes a complete catalog
+PASS HTML catalog failure on announced page is explicit
+PASS Cloudflare CDN/embedded Turnstile does not block valid content
+PASS Cloudflare blocked document remains typed and no second transport
+PASS Protected creation produces installable pending child and allows retry
+PASS Registration failure is not advertised as creation success
+PASS Catalog expires in memory, bounded to four works, identity checked
+PASS parseNovel/parsePage contract and no invented chapter on empty catalog
+PASS Native remote pagination renders first 100 of 205, fetches page 3 on demand
+PASS Legacy encoding reads the same response, one HTTP request
+PASS AJAX pager showing only last page expands intermediate pages
+PASS HTTP 403 is not cached as empty; same child retries after WebView
+PASS Empty first page can recover without reinstalling
+PASS Quanben-style teaser recovers actual AMP with 2420 chapters
+PASS Novel OG vocabulary and static list cards work across hosts
+PASS Fictionposts AJAX uses real work ID and extracts TOC
+PASS Malformed translation batch falls back to individual ES titles
+PASS Mirror compatibility requires matching names and preserves hrefs
+PASS Rare number resets preserve volume sequence; duplicate URLs removed
+PASS Lazy cover overrides placeholder even with learned @src selector; name OG metadata
+PASS Large card DOM caches site metadata once and does not mix listing/detail URLs
+PASS Catalog failure preserves metadata without caching failure; retry restores chapters
+PASS Catalog pager excludes next chapter and unrelated recommendation pagination
+PASS Numeric work catalog excludes recommendation chapters and supports more than 98
+PASS Device sources survive restart, isolate hosts and never request Factory API
+PASS Device URL activates local source, returns real books, preserves blocked profile
+PASS Stored category from another device source cannot redirect browsing
+OK — 31 architecture regression groups (real DOM, mocked network).
+[release] 4/5 sintaxe dos 15 Masters
+[release] 5/5 distribution guard
+[distribution-guard] OK: <projeto>
+[distribution-guard] 15 Masters apenas; nenhum filho/plugin oficial/perfil/chave distribuído.
+[release] OK — árvore segura para empacotar/publicar.

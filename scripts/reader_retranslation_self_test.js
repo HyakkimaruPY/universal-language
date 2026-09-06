@@ -11,6 +11,10 @@ async function run(fetcher, original='原文',before='Anterior'){
 }
 const response=(d,ok=true)=>({ok,status:ok?200:503,json:async()=>d});
 (async()=>{
+ if(process.argv[3]==='device'){
+  let calls=0;const r=await run(async(u)=>{assert.ok(u.startsWith('https://translate.googleapis.com/'));calls++;return response([[['Nueva directa']]]);});
+  assert.equal(r.el.textContent,'Nueva directa');assert.equal(calls,1);console.log('PASS device reader: Google direct, zero local-server requests');return;
+ }
  let request;let r=await run(async(u,i)=>{request=JSON.parse(i.body);return response({translation:'Nueva'});});
  assert.equal(r.el.textContent,'Nueva');assert.equal(request.text,'原文');assert.equal(request.currentTranslation,'Anterior');assert.equal(request.repair,true);
  let calls=0;r=await run(async u=>{calls++;if(u.includes('/api/factory/'))throw Error('offline');return response([[['Respaldo']]]);});assert.equal(r.el.textContent,'Respaldo');assert.equal(calls,2);

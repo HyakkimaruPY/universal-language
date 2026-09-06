@@ -1,0 +1,241 @@
+{
+  "base_commit": "5319be0188a3ad0157234248feff32501d16e182",
+  "version": "0.8.8",
+  "files": [
+    {
+      "path": "AUTONOMIA_LNREADER.md",
+      "before_sha256": "f3bbcb904bb110c1b7b492fe402ce2512b70aa44c16e7acb4085d88cbbffcc1e",
+      "after_sha256": "25b3375e10be6b3972b21ea2cce658bfdf22aa5b4579541b825868f48fa3e2cf"
+    },
+    {
+      "path": "README.md",
+      "before_sha256": "a360ff53aca1ee44343c101422cc4d2f6a35f9345d3ebdf48a6d71b5ca661f51",
+      "after_sha256": "679f0e7efcf80ae3d59a586ff3d8dc9c89c2de2fbd1c80b335c97c5e3281847b"
+    },
+    {
+      "path": "factory-templates/runtime.template.js",
+      "before_sha256": "c09cd45e8aeac6854761177269994c6e7dd253a2a1e4fbf0eea60c1861b1e790",
+      "after_sha256": "89c64ee7fb0b48981c4a80c5755ffd040bf8a364f061589cc67fd81d6b4dc988"
+    },
+    {
+      "path": "lnreader-prebuilt/.dist/plugins.json",
+      "before_sha256": "8ae23cd7b2e584257d7e80bea87da16cfca12a38d5decbea480a4b81990dc4c8",
+      "after_sha256": "3b1ea0a049558c258994c442f5ffce459af54725018852a6105adf0e27891191"
+    },
+    {
+      "path": "lnreader-prebuilt/.dist/plugins.min.json",
+      "before_sha256": "a9e15434038396342b7bdf71fb59ed35c411b6363e4f80d65d3bb7ba29831984",
+      "after_sha256": "0fcb254261862fd1696d3a050776fa243d5979a53ac1479e732fae324c81dc43"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ar.js",
+      "before_sha256": "aa2fa8ddfc9eacaf756165ea2c25efdbaf2e5c7bd834846bf49623abeab46651",
+      "after_sha256": "04c36f07168e2f2bf3c5b6392cfb2f921837bdac17da24b3c9edaa0cd07f1dac"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_en.js",
+      "before_sha256": "c3b139ea3486abd755813cd3a5e8fb44c6ad1f105593d4b426d693398f66ebc8",
+      "after_sha256": "6edb6547894712658ca5ecc49601cf7a7b1d7a54dca36a72e967a5a14ff083ac"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_es.js",
+      "before_sha256": "527531fa621aa2e17d345781a960b5c74ec09bf2bd2ecf852c776aa12c92b923",
+      "after_sha256": "f4f599b906bd7bb576d0177c96bb650079c6354d7f9c585f5f896d32d594f146"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_fr.js",
+      "before_sha256": "3a5f3e4fb1e7e885cf68ddf0b9dc530812e166924186280daf3e4e4119a271b1",
+      "after_sha256": "16a5cbc7fa75c88498886547b9c4b84ab94848b604ce74512ec724cd3bb895a4"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_id.js",
+      "before_sha256": "6012e379a012862d17f8f166b05b919aaf75c80ffa22674f22785cb41ab43959",
+      "after_sha256": "d87513e2b124b451ea63bce8b582b1ac1f4fec7544e43f958fb77c137931c690"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ja.js",
+      "before_sha256": "d9d296fa6c8fd95e2c586634cd5f282a0e55f3767ce1505527e7a6aa2a4b9b07",
+      "after_sha256": "d36f8931cdb278e38ac0113ecec192e28346925d3f7f4fe6c7e7ed0e47b715a5"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ko.js",
+      "before_sha256": "76b19a14013047a15d8e142cacc43e15bb80e80eb4861d5802aff04df2ca26df",
+      "after_sha256": "ab18ad3d0db4e1d017c78bc9c467a01d8977135ceff909fae9348dc543980f8c"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pl.js",
+      "before_sha256": "66b6ba18218d91d6451f7f15c7e505bf34d43dcb4ee29714a0c4ef88ee1072de",
+      "after_sha256": "8453a4aefd7c6b0ed0f64990d5aa040afd270b4df3086d45dee77657ba13e0af"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pt.js",
+      "before_sha256": "6545a659ff414be1f8bc7cb73b483dd9272b42052cb2492e00679647715f6525",
+      "after_sha256": "84462c489c1834d181384a5ce7c15987d707ed6812b314023897c2f6ee51642a"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_ru.js",
+      "before_sha256": "dffb7d629c758436fffe0f3cd3d1bb6f28e5c91373397a74b481aeb0d983d4c5",
+      "after_sha256": "c220ed3665f3d97c97826962110593399307bf52f788e49c85f479f12b5ecd13"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_th.js",
+      "before_sha256": "a0577576a4bf5b7b9cf66c77919a15b2245f1d12a5f6970cdf3e0ad23bd1c054",
+      "after_sha256": "0a8976fa34e161abc335722245d8ed58d21c9adc381ce66dcdc7a63e3910eb44"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_tr.js",
+      "before_sha256": "4bdd3e67018b25f3e909611cd6552567da631b090b43a47422174e997508057a",
+      "after_sha256": "c9e846d3482046a05c3587a3cfdc1e7a45daa2bf969f85bbebe174fbde309a76"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_uk.js",
+      "before_sha256": "c5dfaaf88047730f05a98edd3d8f2880ddb07405ea41ea76ba1719d7ea004855",
+      "after_sha256": "7e7ef3c5082bb0d8d56df009c09534c3e3a3958ad559b0eb0fc78837920d0fe3"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_vi.js",
+      "before_sha256": "2bc3d401897f7a29fd4412d0c83b67225c74f8d5cf935b46e3d7816ba89ad2f8",
+      "after_sha256": "9a119eff1965b72f7f8a31083385aad0ea6bd55320b40ad9d90d17fec5657055"
+    },
+    {
+      "path": "lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_zh.js",
+      "before_sha256": "c8f2870e32edd679eebf7143aa9ab249bbe29d6e1016fd4d6f3a6eb1aa50147c",
+      "after_sha256": "78e5543bde5b0ff4b828efdcb79a2a05440c89b2bf4ceddec1735ccc66839d35"
+    },
+    {
+      "path": "package-lock.json",
+      "before_sha256": "6d7ad4e5c912f603412cb48520cef560c8ba7da3928fc91fa3c89e8e0497a20b",
+      "after_sha256": "591ddc72c393bb5d8a471060fb08d21205c6126c9f0c45dac31cff60fa9706b4"
+    },
+    {
+      "path": "package.json",
+      "before_sha256": "eec6b8140b218d030b5bd748ee57a4d5ac59ef4b8434dfe9701c798509269322",
+      "after_sha256": "8ef4622d9535bb8510533483bf8a03547247ed54a55cbe24d13fbdf70c88fc48"
+    },
+    {
+      "path": "scripts/architecture_self_test.js",
+      "before_sha256": "9409a86096412a35c9d5cc3e096b19ea37af0918af244c543ff77f0ac57fcc4e",
+      "after_sha256": "73c2abd0a8123af910dd044e12f94c07d0a0a439c6232d4a73420931130a2bac"
+    },
+    {
+      "path": "scripts/export_public_repo.py",
+      "before_sha256": "ef75e9f20b953faa28c1e4dbafecac7f2119bdbdf4188eb96ccb707a23c3a3ac",
+      "after_sha256": "da951e444feb809e379b618068fcf0cbc9149d479f1c50f7115d50d07b0e34f0"
+    },
+    {
+      "path": "scripts/factory_server.py",
+      "before_sha256": "e6a1da474f979820fde20ed1f0605bcef402074092dff377226468f191071da6",
+      "after_sha256": "7e70670cff3a53c9d1d524e5fc6fb0aca87cc46a6c83a7938fe3ece6fbb859cc"
+    },
+    {
+      "path": "scripts/publish_masters.py",
+      "before_sha256": "fb2045c72adea808417f17740803e40647a96117a8c177eb9f9002a61917e652",
+      "after_sha256": "78885167c55d2c2fbf075f50b4a2312083ab0d3b197b80b3d7377a41833baa1c"
+    },
+    {
+      "path": "scripts/reader_retranslation_self_test.js",
+      "before_sha256": "86ddb3692ed1d3de6c412ff72879395b164b7854cb0ed1f8f52aec1790502c19",
+      "after_sha256": "219e7a51e5ca8a211ac85b6c25fa48e15d97f677de5479ad7198ee81cae010df"
+    },
+    {
+      "path": "scripts/retranslation_self_test.py",
+      "before_sha256": "83cb8f19336045d91762409660fc66d187bf0a5ae58d747113333f46e02304ad",
+      "after_sha256": "f0fbe87104cfe892144569b1935bb60d453e6c22959bf97cf927def2ddf65496"
+    },
+    {
+      "path": "scripts/runtime_self_test.js",
+      "before_sha256": "61636a999f2f832f692e4c8afb00adf290190c0a1c79f4d052a8a4676841cfc3",
+      "after_sha256": "80b2ac3e0dae819bce790b0c571ed07454e6ebc46cabd4f75543d2630f0d2db7"
+    },
+    {
+      "path": "scripts/self_test.py",
+      "before_sha256": "4cd47f627bfa61df65b165166980dff9fa90ec2933678a97786e4a12c8d18fde",
+      "after_sha256": "4a71c1844bcf1e142e7c0e9b93e733fb7e380809f33a9a21d01cdb5d00eeedd0"
+    },
+    {
+      "path": "CHANGELOG_v0.8.8.md",
+      "before_sha256": null,
+      "after_sha256": "6942b8adf852739aedbee7adddd0ec50fd6a4c6e05f1e52d34933125a9d2d258"
+    },
+    {
+      "path": "TEST_REPORT_v0.8.8.txt",
+      "before_sha256": null,
+      "after_sha256": "1a118264e3d994b3a233f8c6c01ce3b6d975748c8f532692ef7d446e5a035714"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_ar.js",
+      "before_sha256": null,
+      "after_sha256": "e9c6a242732fdfc3b9a18a10a46fc2756154436757d826951454780912ff864e"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_en.js",
+      "before_sha256": null,
+      "after_sha256": "6ce4ecf5e68c461140e7a5b0a64c49ea8126bdd47d58b8e00350f36791e605bc"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_es.js",
+      "before_sha256": null,
+      "after_sha256": "0678106710d040c8ee41413d05b47ebf184a3a629eef14992521eb87befd02f2"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_fr.js",
+      "before_sha256": null,
+      "after_sha256": "92334f7007b5dd5735b3f57cfaa0d3dc943006ccd2b039119522a04db4b4662d"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_id.js",
+      "before_sha256": null,
+      "after_sha256": "7257c7078e458eb81c86b304bbecc7fcd4a7423d8613eab8d7e60c844c730ca5"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_ja.js",
+      "before_sha256": null,
+      "after_sha256": "eb7586d156d859152c997790fc5162f916d2b7485cd05b0ff3334452288269a0"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_ko.js",
+      "before_sha256": null,
+      "after_sha256": "93fbbb05218b95e873e3c38b4441cacb12b1bb4f7a0ebcf9f267e5763f6e6cb7"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_pl.js",
+      "before_sha256": null,
+      "after_sha256": "6a99336ba22215933fe43b7433e8936af585772d2edc7d6d7cbd69b9b986c65e"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_pt.js",
+      "before_sha256": null,
+      "after_sha256": "931eddcd24e331444ea61dabc2f6a638ceeafa946b77fbc5c65698a37bd89669"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_ru.js",
+      "before_sha256": null,
+      "after_sha256": "542feffe311456285d21ac72a14bdc2521dfed12164d17be2a32aa8df61e7db5"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_th.js",
+      "before_sha256": null,
+      "after_sha256": "abd52f475414a46e1dc72f79ff6e33de438c05f3db615e87c501019c601099c4"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_tr.js",
+      "before_sha256": null,
+      "after_sha256": "b22b9ff326b17be20663881452c4e287f489d48ded4e971aea57b252cd1b68b6"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_uk.js",
+      "before_sha256": null,
+      "after_sha256": "b513b7f74ac893f52155b1393968a5db3f36e5bd71997f0e48ce2935c93a73d6"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_vi.js",
+      "before_sha256": null,
+      "after_sha256": "891cbf010371c9e3c73979da5ef26ce38eb11fcff52cfdea806f4073478b9faa"
+    },
+    {
+      "path": "lnreader-prebuilt/public/static/src/multi/translatorhell/masterReader_zh.js",
+      "before_sha256": null,
+      "after_sha256": "cb40779ac81e14e337678424d9e2fdb95bc7d66c0576003ba1bab2d09764f865"
+    }
+  ]
+}

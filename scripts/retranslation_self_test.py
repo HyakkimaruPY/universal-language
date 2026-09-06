@@ -35,4 +35,6 @@ with tempfile.TemporaryDirectory() as temp:
  m.WEBROOT=Path(temp)
  rel=m.write_child_reader_runtime({'host':'fixture.test'},'es')
  subprocess.run(['node',str(ROOT/'scripts/reader_retranslation_self_test.js'),str(m.WEBROOT/rel)],check=True)
+ rel=m.write_child_reader_runtime({'host':'fixture.test'},'es',device_mode=True)
+ subprocess.run(['node',str(ROOT/'scripts/reader_retranslation_self_test.js'),str(m.WEBROOT/rel),'device'],check=True)
 print('PASS retradução: chunking, revisão, diagnóstico seguro e leitor gerado')

@@ -1,6 +1,6 @@
 {
   "name": "factory-ance-regression-tests",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "private": true,
   "description": "Development-only DOM tests; not used by the Factory server or Android plugins",
   "scripts": {

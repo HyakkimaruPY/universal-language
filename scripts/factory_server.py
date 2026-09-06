@@ -27,7 +27,7 @@ CHILDREN_FILE = DATA_DIR / 'children.json'
 CREDENTIALS_FILE = DATA_DIR / 'credentials.json'
 MASTER_ICON_REL = 'src/multi/translatorhell/factory_ance_v072.png'
 MASTER_ICON = WEBROOT / ('public/static/' + MASTER_ICON_REL)
-VERSION = '0.8.7'
+VERSION = '0.8.8'
 MASTER_NAME = 'Factory - Ance'
 PROJECT_GITHUB = os.environ.get('TH_FACTORY_GITHUB', '').strip()
 LNREADER_GITHUB = 'https://github.com/lnreader/lnreader'
@@ -923,14 +923,14 @@ def child_reader_js_rel(host, target_key):
     return f'public/static/src/generated/readers/{target_key}/{slugify(normalize_host(host))}.js'
 
 
-def write_child_reader_runtime(profile, target_key):
+def write_child_reader_runtime(profile, target_key, device_mode=False, output_rel=None):
     lang = LANGUAGES[target_key]
     host = normalize_host(profile.get('host'))
-    rel = child_reader_js_rel(host, target_key)
+    rel = output_rel or child_reader_js_rel(host, target_key)
     path = WEBROOT / rel
     path.parent.mkdir(parents=True, exist_ok=True)
     cfg = json.dumps({
-        'factoryBase': BASE_URL,
+        'factoryBase': '' if device_mode else BASE_URL,
         'targetLanguage': lang['google'],
         'targetLabel': lang['label'],
         'host': host,
@@ -946,7 +946,7 @@ function message(text){let box=document.getElementById('th-translation-status');
 const labels=C.targetLanguage==='es'?{busy:'Retraduciendo…',same:'El traductor devolvió el mismo texto.',ok:'Traducción actualizada.',fail:'No se pudo retraducir. El texto anterior se conservó.'}:C.targetLanguage==='pt'?{busy:'Retraduzindo…',same:'O tradutor devolveu o mesmo texto.',ok:'Tradução atualizada.',fail:'Não foi possível retraduzir. O texto anterior foi preservado.'}:{busy:'Retranslating…',same:'The translator returned the same text.',ok:'Translation updated.',fail:'Retranslation failed. Previous text preserved.'};
 async function timedFetch(url,init,timeout=30000){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),timeout);try{const r=await fetch(url,{...init,signal:controller.signal});const d=await r.json();if(!r.ok)throw Error('HTTP '+r.status);return d;}finally{clearTimeout(timer);}}
 async function directGoogle(source){const chunks=[];let chunk='',size=0;for(const char of source){const cost=encodeURIComponent(char).length;if(size+cost>3600&&chunk){chunks.push(chunk);chunk='';size=0;}chunk+=char;size+=cost;}if(chunk)chunks.push(chunk);const out=[];const deadline=Date.now()+30000;for(const part of chunks){if(Date.now()>deadline)throw Error('TIMEOUT');const d=await timedFetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl='+encodeURIComponent(C.targetLanguage)+'&dt=t&q='+encodeURIComponent(part),{method:'GET'},Math.max(1,deadline-Date.now()));const value=Array.isArray(d?.[0])?d[0].map(x=>typeof x?.[0]==='string'?x[0]:'').join(''):'';if(!value.trim())throw Error('EMPTY_RESPONSE');out.push(value);}return out.join('');}
-async function correct(el){if(!el||el.dataset.thBusy==='1')return;const original=String(el.dataset.thOriginal||'').trim();if(!original){message(labels.fail+' (MISSING_ORIGINAL)');return;}el.dataset.thBusy='1';el.classList.add('th-retranslating');const before=String(el.textContent||'').trim();message(labels.busy);try{let value;try{const d=await timedFetch(C.factoryBase+'/api/factory/translate',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({text:original,currentTranslation:before,targetLanguage:C.targetLanguage,targetLabel:C.targetLabel,repair:true})});value=String(d?.translation||'').trim();if(!value)throw Error('EMPTY_RESPONSE');}catch(_){value=await directGoogle(original);}if(value.trim()===before){message(labels.same);return;}if(value.trim()===original&&original!==before)throw Error('UNTRANSLATED_RESPONSE');el.textContent=value;el.dataset.thCorrected='1';el.classList.add('th-corrected');message(labels.ok);}catch(error){message(labels.fail+' ('+String(error?.message||'NETWORK_ERROR').slice(0,70)+')');}finally{delete el.dataset.thBusy;el.classList.remove('th-retranslating');}}
+async function correct(el){if(!el||el.dataset.thBusy==='1')return;const original=String(el.dataset.thOriginal||'').trim();if(!original){message(labels.fail+' (MISSING_ORIGINAL)');return;}el.dataset.thBusy='1';el.classList.add('th-retranslating');const before=String(el.textContent||'').trim();message(labels.busy);try{let value;try{if(!C.factoryBase)throw Error('DEVICE_MODE');const d=await timedFetch(C.factoryBase+'/api/factory/translate',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({text:original,currentTranslation:before,targetLanguage:C.targetLanguage,targetLabel:C.targetLabel,repair:true})});value=String(d?.translation||'').trim();if(!value)throw Error('EMPTY_RESPONSE');}catch(_){value=await directGoogle(original);}if(value.trim()===before){message(labels.same);return;}if(value.trim()===original&&original!==before)throw Error('UNTRANSLATED_RESPONSE');el.textContent=value;el.dataset.thCorrected='1';el.classList.add('th-corrected');message(labels.ok);}catch(error){message(labels.fail+' ('+String(error?.message||'NETWORK_ERROR').slice(0,70)+')');}finally{delete el.dataset.thBusy;el.classList.remove('th-retranslating');}}
 
 document.addEventListener('dblclick',e=>{const el=targetOf(e.target);if(el){e.preventDefault();e.stopPropagation();correct(el);}},true);
 let lastEl=null,lastAt=0;document.addEventListener('pointerup',e=>{if(e.pointerType&&e.pointerType!=='touch')return;const el=targetOf(e.target);if(!el){lastEl=null;lastAt=0;return;}const now=Date.now();if(lastEl===el&&now-lastAt<360){e.preventDefault();e.stopPropagation();lastEl=null;lastAt=0;correct(el);}else{lastEl=el;lastAt=now;}},true);
@@ -1078,7 +1078,7 @@ def master_description(target_key):
     }
     return texts.get(target_key, texts['en']) + f' Output: {label}.'
 
-def master_manifest_entry(target_key, download_base=None):
+def master_manifest_entry(target_key, download_base=None, device_mode=False):
     asset_base = str(download_base or BASE_URL).rstrip('/')
     lang = LANGUAGES[target_key]
     rel = f'.js/src/plugins/multi/translatorHellMaster_{target_key}.js'
@@ -1088,13 +1088,14 @@ def master_manifest_entry(target_key, download_base=None):
         'site': factory_repository_url(),
         'version': VERSION,
         'mode': 'master',
-        'factoryBase': BASE_URL,
+        'factoryBase': '' if device_mode else BASE_URL,
+        'deviceMode': device_mode,
         'targetKey': target_key,
         'targetLanguage': lang['google'],
         'targetLabel': lang['label'],
         'manifestLang': lang['manifest'],
         'icon': MASTER_ICON_REL,
-        'description': master_description(target_key),
+        'description': ('On-device sources inside this Master. Paste a site URL in search, then choose a saved source in settings. No local server required.' if device_mode else master_description(target_key)),
         'repository': factory_repository_url(),
         'author': 'Ance',
         # In localhost/Termux testing this snapshot is private to the user's device.
@@ -1102,11 +1103,13 @@ def master_manifest_entry(target_key, download_base=None):
         'localTranslationConfig': provider_runtime_config(),
     }
     write_runtime(rel, config)
+    reader = write_child_reader_runtime({'host':'master'}, target_key, device_mode=True, output_rel=f'public/static/src/multi/translatorhell/masterReader_{target_key}.js') if device_mode else None
     return {
         'id': config['id'], 'name': config['name'], 'site': config['site'],
         'lang': lang['manifest'], 'version': VERSION,
         'url': f'{asset_base}/{rel}',
         'iconUrl': f'{asset_base}/public/static/{MASTER_ICON_REL}',
+        **({'customJS': f'{asset_base}/{reader}'} if reader else {}),
     }
 
 

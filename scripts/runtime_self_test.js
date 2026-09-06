@@ -38,6 +38,9 @@ Module._load = function(req, parent, isMain) {
 (async () => {
   const pluginPath = path.resolve(__dirname, '../lnreader-prebuilt/.js/src/plugins/multi/translatorHellMaster_pt.js');
   const p = require(pluginPath).default;
+  // Exercise retained Termux development mode; device mode has real-DOM tests.
+  p.deviceMode = false;
+  p.factoryBase = 'http://127.0.0.1:8765';
   // This legacy suite uses a stub DOM; real AJAX/DOM coverage is in architecture_self_test.js.
   p.discoverChapterRequests = () => [];
   p.detectRemoteCatalog = () => null;

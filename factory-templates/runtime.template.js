@@ -57,7 +57,8 @@ class TranslatorHellFactoryRuntime {
         this.webStorageUtilized = true;
         this.targetLanguage = String(CONFIG.targetLanguage || 'pt');
         this.targetLabel = String(CONFIG.targetLabel || this.targetLanguage);
-        this.factoryBase = String(CONFIG.factoryBase || 'http://127.0.0.1:8765').replace(/\/$/, '');
+        this.deviceMode = CONFIG.deviceMode === true;
+        this.factoryBase = this.deviceMode ? '' : String(CONFIG.factoryBase || 'http://127.0.0.1:8765').replace(/\/$/, '');
         this.mode = CONFIG.mode || 'child';
         this.description = String(CONFIG.description || '');
         this.repository = String(CONFIG.repository || '');
@@ -116,6 +117,49 @@ class TranslatorHellFactoryRuntime {
         };
         this.perfDebug = CONFIG.perfDebug !== false;
         this.perfSeq = 0;
+        if (this.deviceMode) this.pluginSettings = this.buildDeviceSettings();
+    }
+    deviceProfiles() {
+        const raw = storage_1.storage.get('factory:device:profiles');
+        try { const rows = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            return Array.isArray(rows) ? rows.filter(p => p && typeof p.host === 'string') : [];
+        } catch (_) {return [];}
+    }
+    buildDeviceSettings() {
+        const rows = this.deviceProfiles();
+        const settings = {
+            sourceHost: {label: 'Fonte / Source', type:'Select', value:rows[0]?.host || '',
+                options: rows.length ? rows.map(p=>({label:p.siteName || p.host,value:p.host})) : [{label:'Cole uma URL na busca / Paste URL in search',value:''}]},
+        };
+        for (const id of ['P','G','Z','H']) settings['apiKey'+id] = {label:this.providerDefinition(id).label+' API key (optional)',type:'Text',value:''};
+        return settings;
+    }
+    saveDeviceProfile(profile, activate = false) {
+        if (!profile?.host) return null;
+        const rows = this.deviceProfiles();
+        const index = rows.findIndex(p=>p.host===profile.host);
+        const merged = this.ensureProfile(this.mergeProfiles(index >= 0 ? rows[index] : null, profile), profile.origin || profile.seedUrl, profile.host);
+        if (index >= 0) rows[index] = merged; else rows.push(merged);
+        storage_1.storage.set('factory:device:profiles',JSON.stringify(rows));
+        this.profileCache.set(profile.host,merged);
+        if (activate || !storage_1.storage.get('sourceHost')) storage_1.storage.set('sourceHost',profile.host);
+        this.pluginSettings = this.buildDeviceSettings();
+        return merged;
+    }
+    async searchDeviceUrl(url, pageNo = 1) {
+        const u = new URL(url);
+        let profile = this.saveDeviceProfile(this.minimalProfile(url), true);
+        this.site = u.origin;
+        const html = await this.getText(url,'factory');
+        const $ = (0,cheerio_1.load)(html);
+        profile = this.saveDeviceProfile(this.mergeProfiles(profile,this.learnSiteProfile($,url,url,html)),true);
+        if (this.looksLikeNovelDocument($,url) && this.isCanonicalNovelDetailUrl(url)) {
+            const meta = this.extractMetadata($,url,profile);
+            const items=[{name:meta.title || profile.siteName,path:url,...(meta.cover?{cover:meta.cover}:{})}];
+            this.rememberNovelHints(items);
+            return this.translateNovelItemTitlesGoogle(items);
+        }
+        return this.getPopularSourcePage(profile,pageNo,{});
     }
     perfStart(operation, url = '') {
         const now = Date.now();
@@ -336,7 +380,7 @@ class TranslatorHellFactoryRuntime {
         // The Master is a factory/command source, not a bookshelf. Learned DNS
         // profiles must NEVER be exposed as NovelItems, otherwise LNReader stores
         // the website itself as if it were a novel.
-        if (this.mode === 'master')
+        if (this.mode === 'master' && !this.deviceMode)
             return [];
         if (pageNo > 30)
             return [];
@@ -351,6 +395,11 @@ class TranslatorHellFactoryRuntime {
         // Only the first page is allowed to execute the factory command.
         const page = Math.max(1, Number(pageNo || 1));
         const asUrl = this.asHttpUrl(searchTerm);
+        if (this.deviceMode) {
+            if (asUrl) return page === 1 ? this.searchDeviceUrl(asUrl) : [];
+            const profile = await this.getCurrentProfile();
+            return profile ? this.getSearchSourcePage(profile, this.norm(searchTerm), page) : [];
+        }
         if (asUrl) {
             if (page > 1)
                 return [];
@@ -1066,6 +1115,7 @@ class TranslatorHellFactoryRuntime {
         }
     }
     async getProfiles() {
+        if (this.deviceMode) return this.deviceProfiles();
         try {
             const data = await this.factoryRequest('/api/factory/profiles', { method: 'GET' });
             return Array.isArray(data?.profiles) ? data.profiles : [];
@@ -1075,6 +1125,13 @@ class TranslatorHellFactoryRuntime {
         }
     }
     async getCurrentProfile() {
+        if (this.deviceMode) {
+            const rows=this.deviceProfiles();
+            const selected=storage_1.storage.get('sourceHost');
+            const profile=rows.find(p=>p.host===selected) || rows[0];
+            if(profile) {this.site=profile.origin;this.filters=this.buildLnFilters(profile.filterDefinitions || []);}
+            return profile || null;
+        }
         if (this.mode === 'master') return null;
         const host = CONFIG.host || this.embeddedProfile?.host;
         if (!host) return this.embeddedProfile;
@@ -1125,6 +1182,7 @@ class TranslatorHellFactoryRuntime {
     async profileForUrl(url) {
         const u = new URL(url);
         const host = u.hostname;
+        if (this.deviceMode) return this.deviceProfiles().find(p=>p.host===host) || this.minimalProfile(url,host);
         const hit = this.profileCache.get(host);
         if (hit)
             return hit;
@@ -1145,6 +1203,7 @@ class TranslatorHellFactoryRuntime {
         return this.minimalProfile(url, host);
     }
     async registerProfile(profile) {
+        if (this.deviceMode) return {ok:true,profile:this.saveDeviceProfile(profile),storedOnDevice:true};
         if (!profile?.host)
             return null;
         const mergedLocal = this.mergeProfiles(this.readLocalProfile(), profile);
@@ -1177,6 +1236,7 @@ class TranslatorHellFactoryRuntime {
         }
     }
     async refineProfile(refinement) {
+        if (this.deviceMode) {this.saveDeviceProfile(refinement);return;}
         if (!refinement?.host) return;
         const base = this.profileCache.get(refinement.host) || this.readLocalProfile() || this.embeddedProfile;
         const local = this.mergeProfiles(base, refinement);
@@ -1197,6 +1257,7 @@ class TranslatorHellFactoryRuntime {
         } catch (_) {}
     }
     async factoryRequest(path, init, timeoutMs = 1800) {
+        if (this.deviceMode) throw new Error('Factory device mode has no server API');
         const budget = Math.max(600, Number(timeoutMs || 1800));
         const response = await this.withAbortTimeout((signal) => (0, fetch_1.fetchApi)(this.factoryBase + path, { ...(init || {}), ...(signal ? { signal } : {}) }), budget, 'servidor local da Factory');
         if (!response.ok) throw new Error(`Translator Hell Factory HTTP ${response.status}`);
@@ -1419,7 +1480,10 @@ class TranslatorHellFactoryRuntime {
             return rawUrl;
         let base = rawUrl;
         const urlDef = defs.find(def => def?.mode === 'url' && this.selectedFilterValue(selectedFilters?.[def.key]));
-        if (urlDef) base = String(this.selectedFilterValue(selectedFilters?.[urlDef.key]));
+        if (urlDef) {
+            const candidate = this.resolveAgainst(String(this.selectedFilterValue(selectedFilters?.[urlDef.key])), rawUrl);
+            if (candidate && this.sameSiteUrl(candidate, profile) && (urlDef.options || []).some(o=>o.value===candidate)) base=candidate;
+        }
         const action = defs.find(def => def?.mode !== 'url' && def?.action && this.selectedFilterValue(selectedFilters?.[def.key]) !== undefined)?.action;
         if (action && !urlDef)
             base = action;
@@ -5209,6 +5273,11 @@ class TranslatorHellFactoryRuntime {
         return translated.join('');
     }
     async loadTranslationConfig(force = false) {
+        if (this.deviceMode) {
+            const providers={};
+            for(const id of ['P','G','Z','H']) {const key=String(storage_1.storage.get('apiKey'+id)||'').trim();if(key)providers[id]={key};}
+            return {providers};
+        }
         const now = Date.now();
         if (!force && this.aiConfigCache && now - this.aiConfigFetchedAt < 60000) return this.aiConfigCache;
         let config = this.embeddedTranslationConfig && typeof this.embeddedTranslationConfig === 'object' ? this.embeddedTranslationConfig : { providers: {} };

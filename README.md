@@ -1,58 +1,55 @@
-# Universal Language — Factory - Ance
+# Universal Language — Factory - Ance 0.8.8
 
-Gerador de extensões para LNReader, versão 0.8.7. Executa no Termux e cria um
-plugin-filho a partir da URL da fonte, no idioma escolhido entre 15 Masters.
+Extensão pai para LNReader com fontes por domínio armazenadas no telefone.
+Os Masters públicos funcionam sem Termux; o GitHub distribui código e atualizações.
+As fontes salvas são acessadas dentro do Master, sem instalar plugins separados.
 
-```bash
-bash scripts/serve_termux.sh
-```
+## Instalar e usar
 
-Repositório local do LNReader: `http://127.0.0.1:8765/.dist/plugins.min.json`.
-Mantenha o servidor ativo durante a criação e retradução. Filhos e chaves ficam
-no dispositivo; este repositório contém código e testes, não fontes particulares.
-
-## Instalar a extensão pai pelo GitHub
-
-Cole este endereço no gerenciador de repositórios do LNReader:
+Cole este endereço Raw no gerenciador de repositórios do LNReader:
 
 ```text
 https://raw.githubusercontent.com/HyakkimaruPY/universal-language/main/lnreader-prebuilt/.dist/plugins.min.json
 ```
 
-O endereço `github.com/.../blob/...` mostra uma página HTML, não o JSON esperado
-pelo aplicativo. Remova esse endereço antigo para ele não continuar causando erro.
+Remova o endereço `github.com/.../blob/...`: ele entrega HTML e causa erro de JSON.
 
-Os 15 Masters e ícones são baixados diretamente do GitHub.
+1. Instale/atualize o Master do idioma desejado para 0.8.8.
+2. Abra a busca dessa fonte e cole a URL de um site. O Master salva o perfil e
+   apresenta livros reais; não cria um livro fictício representando o domínio.
+3. Para alternar, use a engrenagem do Master e escolha **Fonte / Source**.
+4. Quando houver desafio do site, abra seu WebView, resolva-o e tente novamente.
+5. No capítulo, dois toques rápidos em um parágrafo solicitam retradução direta.
 
-**Autonomia ainda pendente:** esta versão corrige a instalação, mas o código legado
-de criação de filhos separados ainda chama o servidor de teste. Isso NÃO atende
-à arquitetura final desejada: Termux somente para desenvolvimento, processamento
-no telefone e GitHub apenas para distribuição/atualizações. Não trate a instalação
-bem-sucedida como confirmação de que a geração autônoma está implementada.
+Catálogo, detalhes e capítulos são buscados diretamente do site. Google é o
+tradutor padrão. Chaves opcionais de IA para a tradução inicial podem ser inseridas
+nas configurações do Master; ficam no armazenamento do plugin, não no GitHub.
+A retradução por toque usa Google diretamente. A revisão é visual na sessão atual.
+Serviços de tradução e sites continuam exigindo conexão à internet.
 
-Consulte [a limitação da interface do LNReader](AUTONOMIA_LNREADER.md).
-Não acrescente chaves à URL pública do GitHub.
+## Limites
 
-Após mudar o gerador ou sua versão, execute `python scripts/publish_masters.py --write`
-antes de publicar. O workflow confere se a exportação está atualizada e se separa
-os downloads públicos da API local.
+[Autonomia e interface do LNReader](AUTONOMIA_LNREADER.md): o app não oferece uma
+API para uma extensão instalar outra. Esta implementação mantém fontes dentro do
+Master. Não altera nem compila o app e não simula instalação de filhos separados.
+Os parsers são adaptativos; não há garantia de suporte a qualquer site. O catálogo
+completo de NovelLive continua necessitando validação no aparelho.
 
-## Desenvolvimento e validação
+## Desenvolvimento
 
 ```bash
 npm ci --ignore-scripts
+python scripts/publish_masters.py --write
 bash scripts/verify_release.sh
 ```
 
-GitHub Actions executa esses testes em cada push/PR. A suíte gera um filho isolado,
-executa o JS do leitor, verifica 15 Masters e rejeita distribuição de dados privados.
-Os testes de DOM/HTTP são simulados: workflow verde não comprova CAPTCHA, cookies
-ou a arquitetura atual de todos os sites. Não compila o aplicativo LNReader.
+O runtime executado é `factory-templates/runtime.template.js`; a referência antiga
+TypeScript não deve sobrescrevê-lo. GitHub Actions verifica a exportação, os parsers,
+persistência/isolamento de fontes e os leitores gerados com rede simulada.
+Workflow verde não comprova CAPTCHA/cookies ou DOM atual de todos os sites.
 
-O código executado pelo gerador é `factory-templates/runtime.template.js`.
-A referência TypeScript antiga não deve sobrescrever esse runtime.
+`bash scripts/serve_termux.sh` mantém o fluxo legado de desenvolvimento e teste
+local. Ele não é requisito para os Masters públicos. Antes de publicar após esse
+fluxo, regenere a exportação pública com `publish_masters.py --write`.
 
-Consulte [mudanças e limites da v0.8.6](CHANGELOG_v0.8.6.md),
-[relatório de testes](TEST_REPORT_v0.8.6.txt) e os patches versionados na raiz.
-Para atualizar no celular, preserve sua `factory-data`, atualize o Master e gere
-novamente os filhos; seus leitores também precisam da atualização.
+Veja [mudanças da v0.8.8](CHANGELOG_v0.8.8.md), relatórios e patches na raiz.
